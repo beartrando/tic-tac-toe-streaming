@@ -82,8 +82,11 @@ jobs:
           echo "Generated version: v$VERSION"
 
       - name: Create and push release tag
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+          git config --local http.https://github.com/.extraheader \
+            "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_PAT" | base64 -w0)"
 
           git tag -a "v$VERSION" -m "Release v$VERSION"
 
