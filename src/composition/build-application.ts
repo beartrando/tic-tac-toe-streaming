@@ -192,7 +192,6 @@ function buildApplication(): Application {
         new ConnectionHandler(
             authService,
             authorizeProfileUseCase,
-            battleLeaveUseCase,
             websocketDisconnectUseCase,
             battleWebsocketsRegistry,
         );

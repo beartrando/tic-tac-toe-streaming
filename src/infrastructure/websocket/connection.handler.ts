@@ -10,7 +10,6 @@ import WebsocketConnectionHandlerInterface from "./interfaces/websocket-connecti
 import SocketEncoding from "./enums/socket-encoding";
 import AuthService from "../auth/service";
 import SessionAccessToken from "../../domain/session/value-objects/session-access-token.vo";
-import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave";
 import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
@@ -27,7 +26,6 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     constructor(
         private readonly authService: AuthService,
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
-        private readonly battleLeaveUseCase: BattleLeaveUseCase,
         private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
     ) {
