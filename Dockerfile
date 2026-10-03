@@ -1,7 +1,7 @@
 ARG VERSION=dev
 
 # ---------- BASE ----------
-FROM node:22 AS base
+FROM node:22-slim AS base
 
 WORKDIR /usr/src/app
 
@@ -20,7 +20,13 @@ COPY services/streaming/tsconfig.json ./services/streaming/
 COPY services/streaming/src ./services/streaming/src/
 COPY services/streaming/__tests__ ./services/streaming/__tests__/
 
-RUN apt-get update && apt-get install -y protobuf-compiler
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        openssl \
+        protobuf-compiler \
+        libprotobuf-dev \
+        wget \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN corepack enable && corepack prepare pnpm@11.9.0 --activate
 
@@ -74,17 +80,24 @@ RUN pnpm --filter streaming build
 RUN pnpm --filter streaming deploy /deploy --prod
 
 # ---------- PROD ----------
-FROM node:22 AS prod
+FROM node:22-slim AS prod
 
 ARG VERSION=dev
 
 ENV APP_VERSION=$VERSION
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        openssl \
+        wget \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 
 ENV NODE_ENV=production
 
-COPY --from=build /deploy .
+COPY --from=build /deploy/dist ./dist
+COPY --from=build /deploy/node_modules ./node_modules
 
 RUN printf "%s\n" "$VERSION" > VERSION
 
