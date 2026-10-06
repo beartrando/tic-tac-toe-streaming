@@ -1,9 +1,9 @@
-import BattleTimeoutCheckUseCase from "../../src/application/use-cases/battle/battle-timeout-check";
-import BattleId from "../../src/domain/battle/value-objects/battle-id.vo";
-import type BattleClient from "../../src/infrastructure/grpc/clients/battle.client";
-import type BattleWebsocketsRegistry from "../../src/infrastructure/websocket/registers/battle-websockets.registry";
-import type BattleWebsocketSender from "../../src/infrastructure/websocket/senders/battle-websocket.sender";
-import * as battleProto from "../../src/contracts/proto/battle";
+import BattleTimeoutCheckUseCase from "./battle-timeout-check";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
+import type BattleClient from "../../../infrastructure/grpc/clients/battle.client";
+import type BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
+import type BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
+import * as battleProto from "../../../contracts/proto/battle";
 
 function battlesResponse(
     items: battleProto.BattleObject[],

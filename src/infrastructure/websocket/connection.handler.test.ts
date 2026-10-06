@@ -1,14 +1,14 @@
-import ConnectionHandler from "../../src/infrastructure/websocket/connection.handler";
-import SocketEncoding from "../../src/infrastructure/websocket/enums/socket-encoding";
-import BattleId from "../../src/domain/battle/value-objects/battle-id.vo";
-import ProfileId from "../../src/domain/profile/value-objects/profile-id.vo";
-import type AuthService from "../../src/infrastructure/auth/service";
-import type AuthorizeProfileUseCase from "../../src/application/use-cases/auth/authorize-profile";
-import type WebsocketDisconnectUseCase from "../../src/application/use-cases/websocket/websocket-disconnect";
-import type BattleWebsocketsRegistry from "../../src/infrastructure/websocket/registers/battle-websockets.registry";
-import type TimerService from "../../src/infrastructure/timer/service";
-import type HeartbeatWebSocket from "../../src/infrastructure/websocket/types/heartbeat-websocket";
-import type WebsocketHandlerInterface from "../../src/infrastructure/websocket/interfaces/websocket-handler.interface";
+import ConnectionHandler from "./connection.handler";
+import SocketEncoding from "./enums/socket-encoding";
+import BattleId from "../../domain/battle/value-objects/battle-id.vo";
+import ProfileId from "../../domain/profile/value-objects/profile-id.vo";
+import type AuthService from "../auth/service";
+import type AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
+import type WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
+import type BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
+import type TimerService from "../timer/service";
+import type HeartbeatWebSocket from "./types/heartbeat-websocket";
+import type WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 
 type Listener = (data: unknown) => void;
 

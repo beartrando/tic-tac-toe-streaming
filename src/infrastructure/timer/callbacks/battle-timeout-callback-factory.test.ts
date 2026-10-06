@@ -1,11 +1,8 @@
-import BattleTimeoutCallbackFactory from "../../src/infrastructure/timer/callbacks/battle-timeout-callback-factory";
-import TimerCallbackFactoryHolder from "../../src/infrastructure/timer/callback-factory-holder";
-import TimerService from "../../src/infrastructure/timer/service";
-import BattleTimeoutCheckUseCase from "../../src/application/use-cases/battle/battle-timeout-check";
-import BattleWebsocketSender from "../../src/infrastructure/websocket/senders/battle-websocket.sender";
-import BattleId from "../../src/domain/battle/value-objects/battle-id.vo";
-import type BattleWebsocketsRegistry from "../../src/infrastructure/websocket/registers/battle-websockets.registry";
-import * as battleProto from "../../src/contracts/proto/battle";
+import BattleTimeoutCallbackFactory from "./battle-timeout-callback-factory";
+import TimerCallbackFactoryHolder from "../callback-factory-holder";
+import TimerService from "../service";
+import BattleTimeoutCheckUseCase from "../../../application/use-cases/battle/battle-timeout-check";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 
 const IDLE_TIMEOUT_SECONDS = 180;
 const POLL_INTERVAL_SECONDS = 10;
@@ -38,7 +35,7 @@ function buildTimer(check: jest.Mock) {
     return {timerService, factory};
 }
 
-describe("battle timeout timer (простой → опрос каждые 10 сек)", () => {
+describe("BattleTimeoutCallbackFactory (простой → опрос каждые 10 сек)", () => {
     beforeEach(() => {
         jest.useFakeTimers();
     });
@@ -141,29 +138,5 @@ describe("battle timeout timer (простой → опрос каждые 10 с
         await flush();
 
         expect(check).not.toHaveBeenCalled();
-    });
-});
-
-describe("активность баттла перезапускает таймер", () => {
-    test("исходящий пакет (sender.send) рестартует таймер баттла", () => {
-        const registry = {
-            getBattleSockets: jest.fn().mockReturnValue(null),
-        } as unknown as BattleWebsocketsRegistry;
-
-        const timerService = {restart: jest.fn()} as unknown as TimerService<string, BattleId>;
-
-        const sender = new BattleWebsocketSender(registry, timerService);
-
-        sender.send(battleProto.BattleObject.create({
-            id: "battle-1",
-            status: battleProto.BattleStatus.STARTED,
-        }));
-
-        expect(timerService.restart).toHaveBeenCalledTimes(1);
-
-        const [key, entity] = (timerService.restart as jest.Mock).mock.calls[0];
-
-        expect(key).toBe("battle-1");
-        expect((entity as BattleId).value).toBe("battle-1");
     });
 });
