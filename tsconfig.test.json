@@ -3,12 +3,11 @@
   "compilerOptions": {
     "rootDir": ".",
     "types": [
-      "node",
       "jest"
     ]
   },
   "include": [
-    "src",
-    "__tests__"
-  ]
+    "src"
+  ],
+  "exclude": []
 }

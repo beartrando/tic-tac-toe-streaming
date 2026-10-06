@@ -35,7 +35,8 @@ export class BattleEntity {
 
     isTerminated(): boolean {
         return this.status.equals(new BattleStatus(BattleStatusEnum.Finished))
-            || this.status.equals(new BattleStatus(BattleStatusEnum.Cancelled));
+            || this.status.equals(new BattleStatus(BattleStatusEnum.Cancelled))
+            || this.status.equals(new BattleStatus(BattleStatusEnum.TimeOut));
     }
 }
 

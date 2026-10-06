@@ -16,6 +16,8 @@ import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/we
 import HeartbeatWebSocket from "./types/heartbeat-websocket";
 import UserId from "../../domain/user/value-objects/user-id.vo";
 import ProfileId from "../../domain/profile/value-objects/profile-id.vo";
+import BattleId from "../../domain/battle/value-objects/battle-id.vo";
+import TimerService from "../timer/service";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -28,6 +30,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
+        private readonly battleTimerService: TimerService<string, BattleId>,
     ) {
     }
 
@@ -109,6 +112,15 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         ws.on("message", data => {
             try {
                 const request = this.decodeMessage(data, encoding);
+
+                const context = this.battleWebsocketsRegistry.getSocketContext(ws);
+
+                if (context) {
+                    // входящий пакет по баттлу — активность, простой начинается заново
+                    for (const battleId of context.battleIds) {
+                        this.battleTimerService.restart(battleId.value, battleId);
+                    }
+                }
 
                 void handler.handle(
                     ws,

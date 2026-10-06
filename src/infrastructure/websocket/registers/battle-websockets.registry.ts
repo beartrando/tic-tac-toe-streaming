@@ -67,6 +67,14 @@ class BattleWebsocketsRegistry {
         return this.battleWsStateStore.get(battleId.value);
     }
 
+    hasBattleSockets(
+        battleId: BattleId,
+    ): boolean {
+        const sockets = this.battleWsStateStore.get(battleId.value);
+
+        return Boolean(sockets && sockets.size > 0);
+    }
+
 
     unregisterSocket(ws: WebSocket): void {
         // this.clearHeartbeat(ws);

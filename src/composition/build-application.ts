@@ -40,7 +40,10 @@ import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/batt
 
 import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
+import WebsocketTimeoutCallbackFactory from "../infrastructure/timer/callbacks/websocket-timeout-callback-factory";
 import SocketContext from "../infrastructure/websocket/types/socket-context";
+import BattleTimeoutCheckUseCase from "../application/use-cases/battle/battle-timeout-check";
+import BattleId from "../domain/battle/value-objects/battle-id.vo";
 
 // Config
 import authConfig from "../infrastructure/auth/auth.config";
@@ -78,6 +81,19 @@ function buildApplication(): Application {
             timerConfig.iddleWebsocketTimeLimit,
         );
 
+    /*
+     * Таймер простоя баттлов: активность по баттлу перезапускает его,
+     * по срабатыванию баттл опрашивается каждые battlePollIntervalSeconds
+     */
+    const battleTimerCallbackFactoryHolder =
+        new TimerCallbackFactoryHolder<BattleId>();
+
+    const battleTimerService =
+        new TimerService<string, BattleId>(
+            battleTimerCallbackFactoryHolder,
+            timerConfig.battleIdleTimeoutSeconds,
+        );
+
     const grpcStreamService =
         new GrpcStreamService<engineProto.BattleRequest>();
 
@@ -109,7 +125,7 @@ function buildApplication(): Application {
 
     const battleWebsocketsRegistry = new BattleWebsocketsRegistry(socketContextStore, battleWebsocketsStore);
 
-    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry);
+    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry, battleTimerService);
 
 
     /*
@@ -167,10 +183,25 @@ function buildApplication(): Application {
      * Timer callbacks
      */
 
-    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(websocketDisconnectUseCase);
+    const websocketTimeoutCallbackFactory =
+        new WebsocketTimeoutCallbackFactory(websocketDisconnectUseCase);
 
     timerCallbackFactoryHolder.factory =
-        battleTimeoutCallbackFactory;
+        websocketTimeoutCallbackFactory;
+
+    const battleTimeoutCheckUseCase = new BattleTimeoutCheckUseCase(
+        battleClient,
+        battleWebsocketsRegistry,
+        battleWebsocketSender,
+    );
+
+    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
+        battleTimeoutCheckUseCase,
+        battleTimerService,
+        timerConfig.battlePollIntervalSeconds,
+    );
+
+    battleTimerCallbackFactoryHolder.factory = battleTimeoutCallbackFactory;
 
 
     /*
@@ -194,6 +225,7 @@ function buildApplication(): Application {
             authorizeProfileUseCase,
             websocketDisconnectUseCase,
             battleWebsocketsRegistry,
+            battleTimerService,
         );
 
     connectionHandler.registerHandler(
