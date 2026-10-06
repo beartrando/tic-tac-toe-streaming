@@ -1,19 +1,18 @@
-import {WebSocket} from "ws";
 import TimerCallbackInterface from "../interfaces/timer-callback.interface";
 import TimerCallbackFactoryInterface from "../interfaces/timer-callback-factory.interface";
-import WebsocketDisconnectUseCase from "../../../application/use-cases/websocket/websocket-disconnect";
-import logger from "@shared/logger";
+import BattleService from "../../battle/service";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 
-export class BattleTimeoutCallbackFactory implements TimerCallbackFactoryInterface<WebSocket> {
+export class BattleTimeoutCallbackFactory implements TimerCallbackFactoryInterface<BattleId> {
 
     constructor(
-        private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
+        private readonly battleService: BattleService,
     ) {
     }
 
-    create(ws: WebSocket): TimerCallbackInterface {
+    create(battleId: BattleId): TimerCallbackInterface {
         return async () => {
-            // await this.websocketDisconnectUseCase.execute(ws);
+            await this.battleService.timeout(battleId);
         };
     }
 }
