@@ -10,4 +10,3 @@ export class LivezUseCase {
 
 
 export default LivezUseCase;
-

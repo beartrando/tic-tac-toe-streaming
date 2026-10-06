@@ -24,5 +24,3 @@ export class WebsocketSender implements WebsocketSenderInterface {
 }
 
 export default WebsocketSender;
-
-

@@ -34,4 +34,3 @@ export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity
 }
 
 export default StateStore;
-

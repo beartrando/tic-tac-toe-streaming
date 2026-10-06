@@ -4,4 +4,3 @@ export const timerConfig = {
 };
 
 export default timerConfig;
-

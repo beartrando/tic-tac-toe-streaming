@@ -41,5 +41,3 @@ export class BattleWebsocketSender extends WebsocketSender {
 }
 
 export default BattleWebsocketSender;
-
-
