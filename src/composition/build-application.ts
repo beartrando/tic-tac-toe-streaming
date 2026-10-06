@@ -40,9 +40,10 @@ import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/batt
 
 import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
+import WebsocketTimeoutCallbackFactory from "../infrastructure/timer/callbacks/websocket-timeout-callback-factory";
 import SocketContext from "../infrastructure/websocket/types/socket-context";
-import BattleActivityTracker from "../infrastructure/battle-timeout/battle-activity.tracker";
-import BattleTimeoutPollService from "../infrastructure/battle-timeout/service";
+import BattleTimeoutCheckUseCase from "../application/use-cases/battle/battle-timeout-check";
+import BattleId from "../domain/battle/value-objects/battle-id.vo";
 
 // Config
 import authConfig from "../infrastructure/auth/auth.config";
@@ -53,7 +54,6 @@ import messageProducersConfig from "../infrastructure/message/configs/producers.
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
 import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
 import timerConfig from "../infrastructure/timer/config/config";
-import battleTimeoutConfig from "../infrastructure/battle-timeout/config";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
 
 
@@ -79,6 +79,19 @@ function buildApplication(): Application {
         new TimerService<WebSocket, WebSocket>(
             timerCallbackFactoryHolder,
             timerConfig.iddleWebsocketTimeLimit,
+        );
+
+    /*
+     * Таймер простоя баттлов: активность по баттлу перезапускает его,
+     * по срабатыванию баттл опрашивается каждые battlePollIntervalSeconds
+     */
+    const battleTimerCallbackFactoryHolder =
+        new TimerCallbackFactoryHolder<BattleId>();
+
+    const battleTimerService =
+        new TimerService<string, BattleId>(
+            battleTimerCallbackFactoryHolder,
+            timerConfig.battleIdleTimeoutSeconds,
         );
 
     const grpcStreamService =
@@ -112,9 +125,7 @@ function buildApplication(): Application {
 
     const battleWebsocketsRegistry = new BattleWebsocketsRegistry(socketContextStore, battleWebsocketsStore);
 
-    const battleActivityTracker = new BattleActivityTracker();
-
-    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry, battleActivityTracker);
+    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry, battleTimerService);
 
 
     /*
@@ -172,10 +183,25 @@ function buildApplication(): Application {
      * Timer callbacks
      */
 
-    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(websocketDisconnectUseCase);
+    const websocketTimeoutCallbackFactory =
+        new WebsocketTimeoutCallbackFactory(websocketDisconnectUseCase);
 
     timerCallbackFactoryHolder.factory =
-        battleTimeoutCallbackFactory;
+        websocketTimeoutCallbackFactory;
+
+    const battleTimeoutCheckUseCase = new BattleTimeoutCheckUseCase(
+        battleClient,
+        battleWebsocketsRegistry,
+        battleWebsocketSender,
+    );
+
+    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
+        battleTimeoutCheckUseCase,
+        battleTimerService,
+        timerConfig.battlePollIntervalSeconds,
+    );
+
+    battleTimerCallbackFactoryHolder.factory = battleTimeoutCallbackFactory;
 
 
     /*
@@ -199,7 +225,7 @@ function buildApplication(): Application {
             authorizeProfileUseCase,
             websocketDisconnectUseCase,
             battleWebsocketsRegistry,
-            battleActivityTracker,
+            battleTimerService,
         );
 
     connectionHandler.registerHandler(
@@ -269,22 +295,12 @@ function buildApplication(): Application {
      * Application
      */
 
-    const battleTimeoutPollService = new BattleTimeoutPollService(
-        battleActivityTracker,
-        battleClient,
-        battleWebsocketsRegistry,
-        battleWebsocketSender,
-        battleTimeoutConfig.idleTimeoutSeconds,
-        battleTimeoutConfig.pollIntervalSeconds,
-    );
-
     return new Application(
         grpcService,
         jobService,
         messageService,
         websocketService,
         grpcStreamService,
-        battleTimeoutPollService,
     );
 }
 
