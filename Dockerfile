@@ -18,7 +18,6 @@ COPY services/streaming/package*.json ./services/streaming/
 COPY services/streaming/jest.config.js ./services/streaming/
 COPY services/streaming/tsconfig.json ./services/streaming/
 COPY services/streaming/src ./services/streaming/src/
-COPY services/streaming/__tests__ ./services/streaming/__tests__/
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
