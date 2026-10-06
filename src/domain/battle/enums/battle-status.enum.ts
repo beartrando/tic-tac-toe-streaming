@@ -6,6 +6,7 @@ export enum BattleStatusEnum {
     Started = "Started",
     Finished = "Finished",
     Cancelled = "Cancelled",
+    TimeOut = "TimeOut",
 }
 
 export default BattleStatusEnum;

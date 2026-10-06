@@ -26,6 +26,18 @@ export class BattleClient {
             return null;
         });
     }
+
+    async getMany(
+        request: battleProto.BattleIdsRequest,
+        metadata: grpc.Metadata,
+    ): Promise<battleProto.BattlesResponse | null> {
+        return this.manager.call<battleProto.BattlesResponse>(
+            (client, cb) => client.getMany(request, metadata, cb)
+        ).catch((err) => {
+            logger.error("Get many battles failed:", err);
+            return null;
+        });
+    }
 }
 
 export default BattleClient;

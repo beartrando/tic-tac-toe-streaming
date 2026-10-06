@@ -20,6 +20,8 @@ export class BattleStatusProtoMapper {
                 return battleProto.BattleStatus.FINISHED;
             case BattleStatusEnum.Cancelled:
                 return battleProto.BattleStatus.CANCELLED;
+            case BattleStatusEnum.TimeOut:
+                return battleProto.BattleStatus.TIMEOUT;
             default:
                 return battleProto.BattleStatus.UNKNOWN;
         }
@@ -41,6 +43,8 @@ export class BattleStatusProtoMapper {
                 return new BattleStatus(BattleStatusEnum.Finished);
             case battleProto.BattleStatus.CANCELLED:
                 return new BattleStatus(BattleStatusEnum.Cancelled);
+            case battleProto.BattleStatus.TIMEOUT:
+                return new BattleStatus(BattleStatusEnum.TimeOut);
             default:
                 return new BattleStatus(BattleStatusEnum.Unknown);
         }

@@ -5,6 +5,7 @@ import MessageService from "../infrastructure/message/service";
 import WebsocketServerService from "../infrastructure/websocket/server.service";
 import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import TimerService from "../infrastructure/timer/service";
+import BattleTimeoutPollService from "../infrastructure/battle-timeout/service";
 import * as engineProto from "../contracts/proto/engine";
 import {WebSocket,} from "ws";
 
@@ -15,6 +16,7 @@ export class Application {
         private readonly messageService: MessageService,
         private readonly websocketService: WebsocketServerService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
+        private readonly battleTimeoutPollService: BattleTimeoutPollService,
     ) {
     }
 
@@ -36,6 +38,7 @@ export class Application {
             await this.grpcService.start();
             await this.websocketService.start();
             await this.engineStreamService.start();
+            this.battleTimeoutPollService.start();
             logger.info(
                 '🚀 Streaming service started',
             );
@@ -49,6 +52,7 @@ export class Application {
     }
 
     async stop() {
+        this.battleTimeoutPollService.stop();
         await this.engineStreamService.stop();
         await this.websocketService.stop();
         await this.grpcService.stop();

@@ -16,6 +16,7 @@ import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/we
 import HeartbeatWebSocket from "./types/heartbeat-websocket";
 import UserId from "../../domain/user/value-objects/user-id.vo";
 import ProfileId from "../../domain/profile/value-objects/profile-id.vo";
+import BattleActivityTracker from "../battle-timeout/battle-activity.tracker";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -28,6 +29,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
+        private readonly battleActivityTracker: BattleActivityTracker,
     ) {
     }
 
@@ -109,6 +111,12 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         ws.on("message", data => {
             try {
                 const request = this.decodeMessage(data, encoding);
+
+                const context = this.battleWebsocketsRegistry.getSocketContext(ws);
+
+                if (context) {
+                    this.battleActivityTracker.touchAll(context.battleIds);
+                }
 
                 void handler.handle(
                     ws,
