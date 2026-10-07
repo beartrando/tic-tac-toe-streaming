@@ -39,6 +39,13 @@ RUN pnpm install --offline --frozen-lockfile --ignore-scripts
 RUN mkdir -p ./services/streaming/src/contracts/proto
 RUN pnpm --filter streaming proto:generate
 
+RUN pnpm --filter @shared/logger build
+RUN pnpm --filter @shared/grpc-client-manager build
+RUN pnpm --filter @shared/errors proto:generate
+RUN pnpm --filter @shared/errors build
+RUN pnpm --filter @shared/kafka-manager build
+RUN pnpm --filter @shared/pg-boss-manager build
+
 RUN pnpm --filter streaming prisma:generate
 
 # ---------- DEV ----------
@@ -48,18 +55,12 @@ COPY services/streaming/tsconfig.test.json ./services/streaming/
 
 ENV NODE_ENV=development
 
-RUN pnpm --filter @shared/logger build
-RUN pnpm --filter @shared/grpc-client-manager build
-RUN pnpm --filter @shared/errors proto:generate
-RUN pnpm --filter @shared/errors build
-RUN pnpm --filter @shared/kafka-manager build
-RUN pnpm --filter @shared/pg-boss-manager build
-
 RUN chown -R node:node /usr/src/app
 
 USER node
 
 EXPOSE 50051
+EXPOSE 8080
 
 CMD ["pnpm", "--filter", "streaming", "dev"]
 
@@ -70,12 +71,6 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
 FROM deps AS build
 
 ENV NODE_ENV=production
-
-RUN pnpm --filter @shared/logger build
-RUN pnpm --filter @shared/grpc-client-manager build
-RUN pnpm --filter @shared/errors build
-RUN pnpm --filter @shared/kafka-manager build
-RUN pnpm --filter @shared/pg-boss-manager build
 
 RUN pnpm --filter streaming build
 
