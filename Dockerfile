@@ -39,8 +39,6 @@ RUN pnpm install --offline --frozen-lockfile --ignore-scripts
 RUN mkdir -p ./services/streaming/src/contracts/proto
 RUN pnpm --filter streaming proto:generate
 
-RUN pnpm --filter @shared/cache-store build
-RUN pnpm --filter @shared/state-store build
 RUN pnpm --filter @shared/timer build
 RUN pnpm --filter @shared/logger build
 RUN pnpm --filter @shared/grpc-client-manager build
