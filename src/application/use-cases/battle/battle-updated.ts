@@ -24,7 +24,7 @@ export class BattleUpdatedUseCase {
 
         const battleEntity = BattleProtoMapper.toDomain(battle);
 
-        if(battleEntity.isTerminated()) {
+        if (battleEntity.isTerminated()) {
             this.battleWebsocketsRegistry.unsubscribeBattle(battleEntity.id);
         }
 

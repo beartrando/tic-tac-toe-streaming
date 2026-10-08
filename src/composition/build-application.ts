@@ -23,7 +23,7 @@ import AuthService from "../infrastructure/auth/service";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
-import { TimerService } from "@shared/timer";
+import {TimerService} from "@shared/timer";
 import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import WebsocketServerService from "../infrastructure/websocket/server.service";
 
