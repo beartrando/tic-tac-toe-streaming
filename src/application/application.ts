@@ -4,7 +4,7 @@ import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
 import WebsocketServerService from "../infrastructure/websocket/server.service";
 import GrpcStreamService from "../infrastructure/grpc-stream/service";
-import TimerService from "../infrastructure/timer/service";
+import { TimerService } from "@shared/timer";
 import * as engineProto from "../contracts/proto/engine";
 import {WebSocket,} from "ws";
 
