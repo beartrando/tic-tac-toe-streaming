@@ -17,7 +17,7 @@ import HeartbeatWebSocket from "./types/heartbeat-websocket";
 import UserId from "../../domain/user/value-objects/user-id.vo";
 import ProfileId from "../../domain/profile/value-objects/profile-id.vo";
 import BattleId from "../../domain/battle/value-objects/battle-id.vo";
-import TimerService from "../timer/service";
+import {TimerService} from "@shared/timer";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<

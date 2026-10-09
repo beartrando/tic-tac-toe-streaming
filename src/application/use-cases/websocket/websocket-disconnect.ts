@@ -1,7 +1,7 @@
 import {WebSocket} from "ws";
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import BattleLeaveUseCase from "../battle/battle-leave";
-import TimerService from "../../../infrastructure/timer/service";
+import {TimerService} from "@shared/timer";
 
 export class WebsocketDisconnectUseCase {
     constructor(

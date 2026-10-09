@@ -2,7 +2,7 @@ import {WebSocket} from 'ws';
 import logger from "@shared/logger";
 import SocketEncoding from "../enums/socket-encoding";
 import SocketContext from "../types/socket-context";
-import StateStore from "../../state-store/state-stores/state-store";
+import {StateStore} from "@shared/state-store";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 
