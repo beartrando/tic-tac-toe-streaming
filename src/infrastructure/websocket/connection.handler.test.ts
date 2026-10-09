@@ -6,7 +6,7 @@ import type AuthService from "../auth/service";
 import type AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import type WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
 import type BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
-import type TimerService from "../timer/service";
+import {TimerService} from "@shared/timer";
 import type HeartbeatWebSocket from "./types/heartbeat-websocket";
 import type WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 
