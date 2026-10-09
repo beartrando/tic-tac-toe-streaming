@@ -35,7 +35,7 @@ import HealthHandler from "../infrastructure/grpc/handlers/health.handler";
 import ConnectionHandler from "../infrastructure/websocket/connection.handler";
 import BattleHandler from "../infrastructure/websocket/handlers/battle.handler";
 
-import StateStore from "../infrastructure/state-store/state-stores/state-store";
+import {StateStore} from "@shared/state-store";
 import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/battle-websockets.registry";
 
 import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
