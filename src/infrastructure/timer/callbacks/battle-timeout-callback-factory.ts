@@ -1,7 +1,5 @@
 import logger from "@shared/logger";
-import TimerCallbackInterface from "../interfaces/timer-callback.interface";
-import TimerCallbackFactoryInterface from "../interfaces/timer-callback-factory.interface";
-import TimerService from "../service";
+import {TimerService, TimerCallbackFactoryInterface, TimerCallbackInterface} from "@shared/timer";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import BattleTimeoutCheckUseCase from "../../../application/use-cases/battle/battle-timeout-check";
 

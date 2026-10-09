@@ -1,6 +1,6 @@
 import * as battleProto from "../../../contracts/proto/battle";
 import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
-import TimerService from "../../../infrastructure/timer/service";
+import {TimerService} from "@shared/timer";
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import BattleProtoMapper from "../../../infrastructure/grpc/mappers/battle.proto.mapper";

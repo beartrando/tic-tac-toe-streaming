@@ -40,8 +40,6 @@
     "@bufbuild/protobuf": "^2.11.0",
     "@shared/cache-store": "workspace:*",
     "@shared/errors": "workspace:*",
-    "@shared/timer": "workspace:*",
-    "@shared/state-store": "workspace:*",
     "@shared/grpc-client-manager": "workspace:*",
     "@shared/kafka-manager": "workspace:*",
     "@shared/logger": "workspace:*",

@@ -8,7 +8,7 @@ import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-lea
 import BattleConnectBotUseCase from "../../../application/use-cases/battle/battle-connect-bot";
 
 import logger from "@shared/logger";
-import TimerService from "../../timer/service";
+import {TimerService} from "@shared/timer";
 import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
