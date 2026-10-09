@@ -23,7 +23,7 @@ import AuthService from "../infrastructure/auth/service";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
-import {TimerService} from "@shared/timer";
+import {TimerCallbackFactoryHolder, TimerService} from "@shared/timer";
 import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import WebsocketServerService from "../infrastructure/websocket/server.service";
 
@@ -38,7 +38,6 @@ import BattleHandler from "../infrastructure/websocket/handlers/battle.handler";
 import {StateStore} from "@shared/state-store";
 import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/battle-websockets.registry";
 
-import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
 import WebsocketTimeoutCallbackFactory from "../infrastructure/timer/callbacks/websocket-timeout-callback-factory";
 import SocketContext from "../infrastructure/websocket/types/socket-context";
