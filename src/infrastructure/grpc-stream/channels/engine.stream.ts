@@ -13,7 +13,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
     private heartbeatInterval: NodeJS.Timeout | null = null;
     private heartbeatPeriod = 5000;
     private reconnectScheduled = false;
-    
+
     constructor(
         private readonly serviceEngineUrl: string,
         private readonly battleUpdatedUseCase: BattleUpdatedUseCase,
@@ -45,12 +45,6 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
         this.stream = this.client.battleChannel();
 
 
-
-
-
-
-
-
         const channel = this.client.getChannel();
 
         logger.log(
@@ -75,15 +69,6 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
         };
 
         watchGrpcState();
-
-
-
-
-
-
-
-
-
 
 
         this.stream.on('data', (message: engineProto.BattleResponse) => {
