@@ -1,20 +1,19 @@
 import {WebSocket} from 'ws';
-import * as battleProto from "../../../contracts/proto/battle";
+import * as matchmakingProto from "../../../contracts/proto/matchmaking";
 
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
-import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
+import MatchmakingClient from "../../../infrastructure/grpc/clients/matchmaking.client";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
 import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
-import logger from "@shared/logger";
 
 export class BattleInitUseCase {
     constructor(
         private readonly battleWebsocketSender: BattleWebsocketSender,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly battleClient: BattleClient,
+        private readonly matchmakingClient: MatchmakingClient,
     ) {
     }
 
@@ -25,25 +24,17 @@ export class BattleInitUseCase {
         battleId?: BattleId,
     ): Promise<void> {
 
-        // logger.log(
-        //     accessToken,
-        //     profileId,
-        //     battleId,
-        // )
-        const grpcRequest = battleProto.BattleInitRequest.create({
+        const grpcRequest = matchmakingProto.BattleInitRequest.create({
             profileId: profileId.value,
             battleId: battleId ? battleId.value : undefined
         });
         const metadata = AuthHelper.getMetadata(accessToken);
-        // logger.log(grpcRequest);
-        const battleResponse = await this.battleClient.init(grpcRequest, metadata);
 
-        // logger.log(battleResponse);
+        const battleResponse = await this.matchmakingClient.init(grpcRequest, metadata);
 
         if (!battleResponse?.battle) {
             return;
         }
-        // logger.log(battleResponse.battle);
 
         this.battleWebsocketsRegistry.subscribeBattle(ws, new BattleId(battleResponse.battle.id));
 

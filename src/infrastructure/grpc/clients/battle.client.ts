@@ -16,17 +16,6 @@ export class BattleClient {
         );
     }
 
-    async init(request: battleProto.BattleInitRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
-        // logger.log(request);
-
-        return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.init(request, metadata, cb)
-        ).catch((err) => {
-            logger.error("Start engine failed:", err);
-            return null;
-        });
-    }
-
     async getMany(
         request: battleProto.BattleIdsRequest,
         metadata: grpc.Metadata,
