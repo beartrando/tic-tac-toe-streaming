@@ -29,6 +29,7 @@ import WebsocketServerService from "../infrastructure/websocket/server.service";
 
 import ProfileClient from "../infrastructure/grpc/clients/profile.client";
 import BattleClient from "../infrastructure/grpc/clients/battle.client";
+import MatchmakingClient from "../infrastructure/grpc/clients/matchmaking.client";
 import EngineStream from "../infrastructure/grpc-stream/channels/engine.stream";
 
 import HealthHandler from "../infrastructure/grpc/handlers/health.handler";
@@ -107,6 +108,9 @@ function buildApplication(): Application {
     const battleClient =
         new BattleClient(grpcConfig.serviceBattleUrl);
 
+    const matchmakingClient =
+        new MatchmakingClient(grpcConfig.serviceMatchmakingUrl);
+
 
     /*
      * State
@@ -151,7 +155,7 @@ function buildApplication(): Application {
         new BattleInitUseCase(
             battleWebsocketSender,
             battleWebsocketsRegistry,
-            battleClient,
+            matchmakingClient,
         );
 
     const battleStartUseCase =
