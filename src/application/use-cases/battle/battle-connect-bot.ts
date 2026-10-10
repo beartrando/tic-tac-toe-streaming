@@ -1,5 +1,5 @@
 import JobService from "../../../infrastructure/job/service";
-import StateStore from "../../../infrastructure/state-store/state-stores/state-store";
+import {StateStore} from "@shared/state-store";
 import {WebSocket} from "ws";
 import SocketContext from "../../../infrastructure/websocket/types/socket-context";
 import * as streamingProto from "../../../contracts/proto/streaming";

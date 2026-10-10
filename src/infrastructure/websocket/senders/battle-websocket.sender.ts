@@ -5,7 +5,7 @@ import WebsocketSender from "./websocket.sender";
 import SocketEncoding from "../enums/socket-encoding";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import logger from "@shared/logger";
-import TimerService from "../../timer/service";
+import {TimerService} from "@shared/timer";
 
 export class BattleWebsocketSender extends WebsocketSender {
     constructor(

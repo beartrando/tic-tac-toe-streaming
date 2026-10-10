@@ -1,6 +1,6 @@
 import BattleWebsocketSender from "./battle-websocket.sender";
 import type BattleWebsocketsRegistry from "../registers/battle-websockets.registry";
-import type TimerService from "../../timer/service";
+import {TimerService} from "@shared/timer";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import * as battleProto from "../../../contracts/proto/battle";
 
