@@ -1,6 +1,7 @@
 import * as grpc from "@grpc/grpc-js";
 
 import * as matchmakingProto from "../../../contracts/proto/matchmaking";
+import * as battleProto from "../../../contracts/proto/battle";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
@@ -19,8 +20,8 @@ export class MatchmakingClient {
     async init(
         request: matchmakingProto.BattleInitRequest,
         metadata: grpc.Metadata,
-    ): Promise<matchmakingProto.BattleResponse | null> {
-        return this.manager.call<matchmakingProto.BattleResponse>(
+    ): Promise<battleProto.BattleResponse | null> {
+        return this.manager.call<battleProto.BattleResponse>(
             (client, cb) => client.init(request, metadata, cb)
         ).catch((err) => {
             logger.error("Matchmaking init failed:", err);
