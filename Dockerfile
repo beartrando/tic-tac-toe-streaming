@@ -17,6 +17,7 @@ COPY tsconfig.base.json ./
 COPY services/streaming/package*.json ./services/streaming/
 COPY services/streaming/jest.config.js ./services/streaming/
 COPY services/streaming/tsconfig.json ./services/streaming/
+COPY services/streaming/jest.setup.ts ./services/streaming/
 COPY services/streaming/src ./services/streaming/src/
 
 RUN apt-get update \
