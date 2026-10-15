@@ -8,6 +8,7 @@ export class BattleProtoMapper {
     static toDomain(battle: battleProto.BattleObject): BattleEntity {
         const battleEntityProps: BattleEntityProps = {
             id: new BattleId(battle.id),
+            trackId: battle.trackId,
             // playerIds: new BattlePlayerIds(battle.playerIds.map((id: string) => new ProfileId(id))),
             // board: BattleBoardProtoMapper.toDomain(battle.board),
             status: BattleStatusProtoMapper.toDomain(battle.status),
