@@ -15,7 +15,7 @@ export class BattleWebsocketSender extends WebsocketSender {
         super();
     }
 
-    send(battleObject: battleProto.BattleObject) {
+    send(battleObject: battleProto.BattleObject, trackId?: string) {
         // logger.error(new Error().stack);
         const battleId = new BattleId(battleObject.id);
 
@@ -34,7 +34,7 @@ export class BattleWebsocketSender extends WebsocketSender {
             return;
         }
 
-        const streamResponse = streamingProto.BattleResponse.create({battle: battleObject})
+        const streamResponse = streamingProto.BattleResponse.create({battle: battleObject, trackId})
 
         for (const ws of sockets) {
             const context = this.battleWebsocketsRegistry.getSocketContext(ws);

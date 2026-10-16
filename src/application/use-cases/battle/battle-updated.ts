@@ -15,12 +15,13 @@ export class BattleUpdatedUseCase {
 
     async execute(
         battle: battleProto.BattleObject,
+        trackId?: string,
     ): Promise<void> {
         // logger.log(battle);
         // this.battleWebsocketsRegistry.getBattleSockets(new BattleId(battle.id));
         // this.timerService.restart(ws);
 
-        this.battleWebsocketSender.send(battle);
+        this.battleWebsocketSender.send(battle, trackId);
 
         const battleEntity = BattleProtoMapper.toDomain(battle);
 
