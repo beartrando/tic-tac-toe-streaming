@@ -1,6 +1,5 @@
 import BattleTimeoutCallbackFactory from "./battle-timeout-callback-factory";
-import TimerCallbackFactoryHolder from "../callback-factory-holder";
-import TimerService from "../service";
+import {TimerCallbackFactoryHolder, TimerService} from "@shared/timer";
 import BattleTimeoutCheckUseCase from "../../../application/use-cases/battle/battle-timeout-check";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 

@@ -1,4 +1,5 @@
 import {WebSocket,} from "ws";
+import {randomUUID} from "crypto";
 import * as streamingProto from "../../../contracts/proto/streaming";
 import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
@@ -30,29 +31,32 @@ export class BattleHandler implements WebsocketHandlerInterface {
         // logger.log(payload);
 
         try {
+            const trackId = payload.trackId || randomUUID();
+
             if (payload.init) {
                 const battleId = payload.init.battleId ? new BattleId(payload.init.battleId) : undefined;
                 return this.initUseCase.execute(
                     ws,
                     accessToken,
                     profileId,
-                    battleId
+                    battleId,
+                    trackId,
                 );
             } else if (payload.start) {
                 logger.log(payload.start);
                 this.timerService.restart(ws, ws);
-                return this.startUseCase.execute(profileId, payload.start);
+                return this.startUseCase.execute(profileId, payload.start, trackId);
             } else if (payload.move) {
                 this.timerService.restart(ws, ws);
-                return this.moveUseCase.execute(profileId, payload.move);
+                return this.moveUseCase.execute(profileId, payload.move, trackId);
             } else if (payload.ping) {
                 return;
             } else if (payload.connectBot) {
                 logger.log(payload.connectBot);
-                return this.connectBotUseCase.execute(profileId, new BattleId(payload.connectBot.battleId));
+                return this.connectBotUseCase.execute(profileId, new BattleId(payload.connectBot.battleId), trackId);
             } else if (payload.leave) {
                 const battleId = new BattleId(payload.leave.battleId);
-                return this.leaveUseCase.execute(profileId, battleId);
+                return this.leaveUseCase.execute(profileId, battleId, trackId);
             }
 
             logger.warn(`⚠️ Unknown payload type:`, payload);

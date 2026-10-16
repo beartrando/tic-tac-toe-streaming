@@ -12,8 +12,10 @@ export class BattleStartUseCase {
     async execute(
         profileId: ProfileId,
         payload: streamingProto.BattleStart,
+        trackId?: string,
     ): Promise<void> {
         const grpcRequest = engineProto.BattleRequest.create({
+            trackId,
             start: engineProto.BattleStart.create({
                 profileId: profileId.value,
                 ...payload,

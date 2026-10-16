@@ -83,7 +83,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                 logger.log(message);
 
                 if (message.battle) {
-                    this.battleUpdatedUseCase.execute(message.battle);
+                    this.battleUpdatedUseCase.execute(message.battle, message.trackId);
                 }
             } catch (e) {
                 logger.log(e);

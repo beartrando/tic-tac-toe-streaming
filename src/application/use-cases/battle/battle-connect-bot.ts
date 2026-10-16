@@ -19,6 +19,7 @@ export class BattleConnectBotUseCase {
     async execute(
         profileId: ProfileId,
         battleId: BattleId,
+        trackId?: string,
     ): Promise<void> {
 
         const websockets = this.battleWsStateStore.get(battleId.value);
@@ -30,7 +31,7 @@ export class BattleConnectBotUseCase {
         for (const websocket of websockets) {
             const context = this.wsSocketContextStateStore.get(websocket);
             if (profileId === context?.profileId) {
-                const message = streamingProto.BattleJoinBot.create({battleId: battleId.value});
+                const message = streamingProto.BattleJoinBot.create({battleId: battleId.value, trackId});
                 await this.jobService.enqueue(this.botConnectingRequest, message);
             }
         }

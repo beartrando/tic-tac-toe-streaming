@@ -12,8 +12,10 @@ export class BattleMoveUseCase {
     async execute(
         profileId: ProfileId,
         payload: streamingProto.BattleMove,
+        trackId?: string,
     ): Promise<void> {
         const grpcRequest = engineProto.BattleRequest.create({
+            trackId,
             move: engineProto.BattleMove.create({
                 profileId: profileId.value,
                 ...payload,
