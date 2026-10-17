@@ -5,14 +5,16 @@ import WebsocketSender from "./websocket.sender";
 import SocketEncoding from "../enums/socket-encoding";
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import logger from "@shared/logger";
+import type {MessageLogger} from "@shared/elastic";
 import {TimerService} from "@shared/timer";
 
 export class BattleWebsocketSender extends WebsocketSender {
     constructor(
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
         private readonly battleTimerService: TimerService<string, BattleId>,
+        messageLogger?: MessageLogger,
     ) {
-        super();
+        super(messageLogger);
     }
 
     send(battleObject: battleProto.BattleObject, trackId?: string) {
