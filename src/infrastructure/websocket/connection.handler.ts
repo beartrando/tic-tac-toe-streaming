@@ -81,7 +81,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         const profileId = new ProfileId(url.searchParams.get("profileId") ?? "");
 
         try {
-            if (!this.authorizeProfileUseCase.execute(userId, profileId, token)) {
+            if (!await this.authorizeProfileUseCase.execute(userId, profileId, token)) {
                 ws.close();
 
                 logger.error("❌ JWT token does not match to profile");
