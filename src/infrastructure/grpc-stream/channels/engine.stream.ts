@@ -1,8 +1,10 @@
 import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
+import {extractTrackId, type MessageLogger} from "@shared/elastic";
 import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
+import {ENGINE_BATTLE_CHANNEL_PATH} from "../../grpc/grpc.constants";
 
 
 export class EngineStream implements StreamInterface<engineProto.BattleRequest> {
@@ -17,6 +19,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
     constructor(
         private readonly serviceEngineUrl: string,
         private readonly battleUpdatedUseCase: BattleUpdatedUseCase,
+        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -83,6 +86,13 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                 logger.log(message);
 
                 if (message.battle) {
+                    void this.messageLogger?.logIn(
+                        'grpc',
+                        ENGINE_BATTLE_CHANNEL_PATH,
+                        message,
+                        extractTrackId(message),
+                    );
+
                     this.battleUpdatedUseCase.execute(message.battle, message.trackId);
                 }
             } catch (e) {
@@ -131,6 +141,15 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
         // logger.info(data);
         if (!this.stream) {
             throw new Error('Engine stream not initialized');
+        }
+
+        if (!data.ping) {
+            void this.messageLogger?.logOut(
+                'grpc',
+                ENGINE_BATTLE_CHANNEL_PATH,
+                data,
+                extractTrackId(data),
+            );
         }
 
         this.stream.write(data);

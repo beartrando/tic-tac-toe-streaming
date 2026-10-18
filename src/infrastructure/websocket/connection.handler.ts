@@ -3,6 +3,7 @@ import {RawData,} from "ws";
 
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
+import {extractTrackId, type MessageLogger} from "@shared/elastic";
 
 import WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 
@@ -31,6 +32,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
         private readonly battleTimerService: TimerService<string, BattleId>,
+        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -112,6 +114,13 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         ws.on("message", data => {
             try {
                 const request = this.decodeMessage(data, encoding);
+
+                void this.messageLogger?.logIn(
+                    'websocket',
+                    url.pathname,
+                    request,
+                    extractTrackId(request),
+                );
 
                 const context = this.battleWebsocketsRegistry.getSocketContext(ws);
 

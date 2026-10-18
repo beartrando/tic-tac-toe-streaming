@@ -1,4 +1,5 @@
 import logger from "@shared/logger";
+import type {ElasticService} from "@shared/elastic";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
@@ -15,6 +16,7 @@ export class Application {
         private readonly messageService: MessageService,
         private readonly websocketService: WebsocketServerService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
+        private readonly elasticService: ElasticService,
     ) {
     }
 
@@ -36,6 +38,13 @@ export class Application {
             await this.grpcService.start();
             await this.websocketService.start();
             await this.engineStreamService.start();
+
+            if (!await this.elasticService.check()) {
+                logger.warn(
+                    '⚠️ Elasticsearch is unavailable, messages will not be indexed',
+                );
+            }
+
             logger.info(
                 '🚀 Streaming service started',
             );
@@ -54,6 +63,7 @@ export class Application {
         await this.grpcService.stop();
         await this.jobService.stop();
         await this.messageService.stop();
+        await this.elasticService.stop();
     }
 }
 

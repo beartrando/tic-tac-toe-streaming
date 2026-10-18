@@ -55,6 +55,9 @@ import websocketServerConfig from "../infrastructure/websocket/configs/websocket
 import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
 import timerConfig from "../infrastructure/timer/config/config";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
+import {ElasticService, MessageLogger} from "@shared/elastic";
+import elasticConfig from "../infrastructure/elastic/elastic.config";
+import messagesConfig from "../infrastructure/elastic/messages.config";
 
 
 function buildApplication(): Application {
@@ -62,15 +65,21 @@ function buildApplication(): Application {
      * Infrastructure services
      */
 
+    // Elasticsearch: транспортные сообщения (in/out)
+    const elasticService = new ElasticService(elasticConfig);
+
+    const messageLogger = new MessageLogger(elasticService, messagesConfig);
+
     const authService = new AuthService(authConfig);
 
     const jobService = new JobService(
         jobConfig,
         messageConfig,
         messageProducersConfig,
+        messageLogger,
     );
 
-    const messageService = new MessageService(messageConfig);
+    const messageService = new MessageService(messageConfig, messageLogger);
 
     const timerCallbackFactoryHolder =
         new TimerCallbackFactoryHolder<WebSocket>();
@@ -103,13 +112,13 @@ function buildApplication(): Application {
      */
 
     const profileClient =
-        new ProfileClient(grpcConfig.serviceProfileUrl);
+        new ProfileClient(grpcConfig.serviceProfileUrl, messageLogger);
 
     const battleClient =
-        new BattleClient(grpcConfig.serviceBattleUrl);
+        new BattleClient(grpcConfig.serviceBattleUrl, messageLogger);
 
     const matchmakingClient =
-        new MatchmakingClient(grpcConfig.serviceMatchmakingUrl);
+        new MatchmakingClient(grpcConfig.serviceMatchmakingUrl, messageLogger);
 
 
     /*
@@ -128,7 +137,7 @@ function buildApplication(): Application {
 
     const battleWebsocketsRegistry = new BattleWebsocketsRegistry(socketContextStore, battleWebsocketsStore);
 
-    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry, battleTimerService);
+    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry, battleTimerService, messageLogger);
 
 
     /*
@@ -229,6 +238,7 @@ function buildApplication(): Application {
             websocketDisconnectUseCase,
             battleWebsocketsRegistry,
             battleTimerService,
+            messageLogger,
         );
 
     connectionHandler.registerHandler(
@@ -253,6 +263,7 @@ function buildApplication(): Application {
         new EngineStream(
             grpcConfig.serviceEngineUrl,
             battleUpdatedUseCase,
+            messageLogger,
         );
 
     grpcStreamService.stream = engineStream;
@@ -304,6 +315,7 @@ function buildApplication(): Application {
         messageService,
         websocketService,
         grpcStreamService,
+        elasticService,
     );
 }
 

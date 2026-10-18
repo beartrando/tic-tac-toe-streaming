@@ -44,6 +44,7 @@
     "@shared/kafka-manager": "workspace:*",
     "@shared/logger": "workspace:*",
     "@shared/pg-boss-manager": "workspace:*",
+    "@shared/elastic": "workspace:*",
     "@shared/state-store": "workspace:*",
     "@shared/timer": "workspace:*",
     "cookie-parser": "^1.4.7",
