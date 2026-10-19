@@ -57,7 +57,7 @@ import timerConfig from "../infrastructure/timer/config/config";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
 import {ElasticService, MessageLogger} from "@shared/elastic";
 import elasticConfig from "../infrastructure/elastic/elastic.config";
-import messagesConfig from "../infrastructure/elastic/messages.config";
+import messagesConfig from "../infrastructure/elastic/elastic-messages.config";
 
 
 function buildApplication(): Application {
