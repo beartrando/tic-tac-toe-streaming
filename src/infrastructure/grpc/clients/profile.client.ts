@@ -4,7 +4,7 @@ import * as authProto from "../../../contracts/proto/auth";
 import * as profileProto from "../../../contracts/proto/profile";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
-import {extractTrackId, type MessageLogger} from "@shared/elastic";
+import {extractTrackId, type MessageLogger} from "@shared/message-logger";
 import {PROFILE_GET_BY_USER_PATH} from "../grpc.constants";
 
 export class ProfileClient {

@@ -55,7 +55,7 @@ import websocketServerConfig from "../infrastructure/websocket/configs/websocket
 import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
 import timerConfig from "../infrastructure/timer/config/config";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
-import {ElasticService, MessageLogger} from "@shared/elastic";
+import {ElasticService, MessageLogger} from "@shared/message-logger";
 import elasticConfig from "../infrastructure/elastic/elastic.config";
 import messagesConfig from "../infrastructure/elastic/elastic-messages.config";
 
