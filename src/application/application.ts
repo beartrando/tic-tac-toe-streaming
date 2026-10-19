@@ -1,5 +1,5 @@
 import logger from "@shared/logger";
-import type {ElasticService} from "@shared/message-logger";
+import type {ElasticService} from "@shared/persistent-logger";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";

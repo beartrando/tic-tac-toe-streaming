@@ -1,4 +1,4 @@
-import type {MessageLoggerConfig} from '@shared/message-logger';
+import type {MessageLoggerConfig} from '@shared/persistent-logger';
 
 export const messagesConfig: MessageLoggerConfig = {
     service: process.env.APP_NAME ?? 'streaming',

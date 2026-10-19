@@ -3,7 +3,7 @@ import {RawData,} from "ws";
 
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/message-logger";
+import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
 
 import WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 

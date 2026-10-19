@@ -4,7 +4,7 @@ import * as battleProto from "../../../contracts/proto/battle";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/message-logger";
+import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
 import {BATTLE_GET_MANY_PATH} from "../grpc.constants";
 
 export class BattleClient {

@@ -1,6 +1,6 @@
 import {WebSocket} from 'ws';
 import * as streamingProto from "../../../contracts/proto/streaming";
-import {extractTrackId, type MessageLogger} from "@shared/message-logger";
+import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
 import WebsocketSenderInterface from "../interfaces/websocket-sender.interface";
 import SocketEncoding from "../enums/socket-encoding";
 import {BATTLE_WS_ROUTE} from "../websocket.constants";

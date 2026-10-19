@@ -1,6 +1,6 @@
 import {createConsumer, createProducer, KafkaConfig, KafkaProducer} from "@shared/kafka-manager";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/message-logger";
+import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
 import sleep from "../../utils/sleep";
 import MessageConsumerHandlerInterface from "./interfaces/message-consumer-handler.interface";
 import MessageConsumerInterface from "./interfaces/message-consumer.interface";

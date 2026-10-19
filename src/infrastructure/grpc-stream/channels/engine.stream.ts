@@ -1,7 +1,7 @@
 import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/message-logger";
+import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
 import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
 import {ENGINE_BATTLE_CHANNEL_PATH} from "../../grpc/grpc.constants";
