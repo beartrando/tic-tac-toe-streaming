@@ -55,12 +55,21 @@ import websocketServerConfig from "../infrastructure/websocket/configs/websocket
 import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
 import timerConfig from "../infrastructure/timer/config/config";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
+import {ElasticService, MessageLogger} from "@shared/persistent-logger";
+import elasticConfig from "../infrastructure/persistent-logger/elastic.config";
+import persistentLoggerMessagesConfig from "../infrastructure/persistent-logger/persistent-logger-messages.config";
+import {BATTLE_WS_ROUTE} from "../infrastructure/websocket/websocket.constants";
 
 
 function buildApplication(): Application {
     /*
      * Infrastructure services
      */
+
+    // Elasticsearch: транспортные сообщения (in/out)
+    const elasticService = new ElasticService(elasticConfig);
+
+    const messageLogger = new MessageLogger(elasticService, persistentLoggerMessagesConfig);
 
     const authService = new AuthService(authConfig);
 
@@ -103,13 +112,13 @@ function buildApplication(): Application {
      */
 
     const profileClient =
-        new ProfileClient(grpcConfig.serviceProfileUrl);
+        new ProfileClient(grpcConfig.serviceProfileUrl, messageLogger);
 
     const battleClient =
-        new BattleClient(grpcConfig.serviceBattleUrl);
+        new BattleClient(grpcConfig.serviceBattleUrl, messageLogger);
 
     const matchmakingClient =
-        new MatchmakingClient(grpcConfig.serviceMatchmakingUrl);
+        new MatchmakingClient(grpcConfig.serviceMatchmakingUrl, messageLogger);
 
 
     /*
@@ -219,6 +228,7 @@ function buildApplication(): Application {
             battleMoveUseCase,
             battleConnectBotUseCase,
             battleLeaveUseCase,
+            messageLogger,
         );
 
 
@@ -232,7 +242,7 @@ function buildApplication(): Application {
         );
 
     connectionHandler.registerHandler(
-        "/battle",
+        BATTLE_WS_ROUTE,
         battleHandler,
     );
 
@@ -253,6 +263,7 @@ function buildApplication(): Application {
         new EngineStream(
             grpcConfig.serviceEngineUrl,
             battleUpdatedUseCase,
+            messageLogger,
         );
 
     grpcStreamService.stream = engineStream;
@@ -304,6 +315,7 @@ function buildApplication(): Application {
         messageService,
         websocketService,
         grpcStreamService,
+        elasticService,
     );
 }
 

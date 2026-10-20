@@ -14,6 +14,14 @@ import SessionAccessToken from "../../../domain/session/value-objects/session-ac
 import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
+import {MessageLogger} from "@shared/persistent-logger";
+import {
+    WS_INCOMING_BATTLE_CONNECT_BOT_MESSAGE,
+    WS_INCOMING_BATTLE_INIT_MESSAGE,
+    WS_INCOMING_BATTLE_LEAVE_MESSAGE,
+    WS_INCOMING_BATTLE_MOVE_MESSAGE,
+    WS_INCOMING_BATTLE_START_MESSAGE
+} from "../../persistent-logger/stream-constants";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
@@ -23,6 +31,7 @@ export class BattleHandler implements WebsocketHandlerInterface {
         private readonly moveUseCase: BattleMoveUseCase,
         private readonly connectBotUseCase: BattleConnectBotUseCase,
         private readonly leaveUseCase: BattleLeaveUseCase,
+        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -34,6 +43,11 @@ export class BattleHandler implements WebsocketHandlerInterface {
             const trackId = payload.trackId || randomUUID();
 
             if (payload.init) {
+                this.messageLogger?.logIn(
+                    WS_INCOMING_BATTLE_INIT_MESSAGE,
+                    payload.init,
+                    trackId,
+                );
                 const battleId = payload.init.battleId ? new BattleId(payload.init.battleId) : undefined;
                 return this.initUseCase.execute(
                     ws,
@@ -43,18 +57,36 @@ export class BattleHandler implements WebsocketHandlerInterface {
                     trackId,
                 );
             } else if (payload.start) {
-                logger.log(payload.start);
+                this.messageLogger?.logIn(
+                    WS_INCOMING_BATTLE_START_MESSAGE,
+                    payload.start,
+                    trackId,
+                );
                 this.timerService.restart(ws, ws);
                 return this.startUseCase.execute(profileId, payload.start, trackId);
             } else if (payload.move) {
+                this.messageLogger?.logIn(
+                    WS_INCOMING_BATTLE_MOVE_MESSAGE,
+                    payload.move,
+                    trackId,
+                );
                 this.timerService.restart(ws, ws);
                 return this.moveUseCase.execute(profileId, payload.move, trackId);
             } else if (payload.ping) {
                 return;
             } else if (payload.connectBot) {
-                logger.log(payload.connectBot);
+                this.messageLogger?.logIn(
+                    WS_INCOMING_BATTLE_CONNECT_BOT_MESSAGE,
+                    payload.connectBot,
+                    trackId,
+                );
                 return this.connectBotUseCase.execute(profileId, new BattleId(payload.connectBot.battleId), trackId);
             } else if (payload.leave) {
+                this.messageLogger?.logIn(
+                    WS_INCOMING_BATTLE_LEAVE_MESSAGE,
+                    payload.leave,
+                    trackId,
+                );
                 const battleId = new BattleId(payload.leave.battleId);
                 return this.leaveUseCase.execute(profileId, battleId, trackId);
             }
