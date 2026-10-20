@@ -12,6 +12,3 @@ export const MATCHMAKING_INIT_PATH = '/matchmaking.Matchmaking/Init';
 export const ENGINE_BATTLE_CHANNEL_PATH = '/engine.Engine/BattleChannel';
 
 
-
-// export const WS_SEND_BATTLE_PATH = 'ws-send-battle';
-// export const CONNECT_BOT_REQUEST = 'connect-bot-request';
