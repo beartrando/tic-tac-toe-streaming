@@ -1,8 +1,8 @@
 import type {MessageLoggerConfig} from '@shared/persistent-logger';
 
-export const messagesConfig: MessageLoggerConfig = {
+export const persistentLoggerMessagesConfig: MessageLoggerConfig = {
     service: process.env.APP_NAME ?? 'streaming',
     index: process.env.ELASTIC_MESSAGES_INDEX ?? 'service-messages',
 };
 
-export default messagesConfig;
+export default persistentLoggerMessagesConfig;

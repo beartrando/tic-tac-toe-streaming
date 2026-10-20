@@ -5,7 +5,7 @@ import * as battleProto from "../../../contracts/proto/battle";
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
 import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
-import {BATTLE_GET_MANY_PATH} from "../grpc.constants";
+import {BATTLE_GET_MANY_PATH} from "../../persistent-logger/stream-constants";
 
 export class BattleClient {
     private readonly manager: GrpcClientManager<battleProto.BattleClient>;
@@ -24,7 +24,6 @@ export class BattleClient {
         metadata: grpc.Metadata,
     ): Promise<battleProto.BattlesResponse | null> {
         void this.messageLogger?.logOut(
-            'grpc',
             BATTLE_GET_MANY_PATH,
             request,
             extractTrackId(request),
@@ -33,17 +32,11 @@ export class BattleClient {
         return this.manager.call<battleProto.BattlesResponse>(
             (client, cb) => client.getMany(request, metadata, cb)
         ).then((response) => {
-            void this.messageLogger?.logIn('grpc', BATTLE_GET_MANY_PATH, response, extractTrackId(response));
+            void this.messageLogger?.logIn(BATTLE_GET_MANY_PATH, response, extractTrackId(response));
 
             return response;
         }).catch((err) => {
             logger.error("Get many battles failed:", err);
-
-            void this.messageLogger?.logIn(
-                'grpc',
-                BATTLE_GET_MANY_PATH,
-                {error: (err as Error)?.message ?? String(err)},
-            );
 
             return null;
         });

@@ -5,7 +5,7 @@ import * as profileProto from "../../../contracts/proto/profile";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
-import {PROFILE_GET_BY_USER_PATH} from "../grpc.constants";
+import {PROFILE_GET_BY_USER_PATH} from "../../persistent-logger/stream-constants";
 
 export class ProfileClient {
     private readonly manager: GrpcClientManager<profileProto.ProfileClient>;
@@ -28,7 +28,6 @@ export class ProfileClient {
         metadata: grpc.Metadata,
     ): Promise<profileProto.ProfileResponse | null> {
         void this.messageLogger?.logOut(
-            'grpc',
             PROFILE_GET_BY_USER_PATH,
             request,
             extractTrackId(request),
@@ -39,14 +38,14 @@ export class ProfileClient {
                 (client, callback) => client.getByUser(request, metadata, callback),
             );
 
-            void this.messageLogger?.logIn('grpc', PROFILE_GET_BY_USER_PATH, response, extractTrackId(response));
+            void this.messageLogger?.logIn(PROFILE_GET_BY_USER_PATH, response, extractTrackId(response));
 
             return response;
         } catch (err) {
             void this.messageLogger?.logIn(
-                'grpc',
                 PROFILE_GET_BY_USER_PATH,
                 {error: (err as Error)?.message ?? String(err)},
+                extractTrackId(request),
             );
 
             throw err;
