@@ -1,18 +1,21 @@
-import type {PgBossConfig} from "@shared/pg-boss-manager";
+import type {PgBossConfig, WorkerHandler} from "@shared/pg-boss-manager";
 import pgBossManager, {SqlExecutor} from '@shared/pg-boss-manager';
 import logger from "@shared/logger";
+<<<<<<< HEAD
 import {extractBattleId, extractTrackId, type MessageLogger} from "@shared/elastic";
+=======
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
 import sleep from "../../utils/sleep";
 import {KafkaConfig} from "@shared/kafka-manager";
 
 
 export class JobService {
+    private readonly workers = new Map<string, WorkerHandler<any>>();
 
     constructor(
         private readonly config: PgBossConfig,
         private readonly messageConfig: KafkaConfig,
         private readonly messageProducersConfig: Record<string, string>,
-        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -21,6 +24,8 @@ export class JobService {
         void pgBossManager.start(this.config);
 
         await pgBossManager.waitUntilReady();
+
+        this.registerWorkers();
 
         await this.initKafkaBridge();
     }
@@ -52,12 +57,17 @@ export class JobService {
         }
     }
 
+    public registerWorker(
+        topic: string,
+        handler: WorkerHandler<any>,
+    ): void {
+        this.workers.set(topic, handler);
+    }
+
     public async enqueue<T extends object>(
         topic: string,
         data: T,
     ): Promise<number> {
-        this.logOutgoing(topic, data);
-
         const boss = await pgBossManager.waitUntilReady();
 
         return pgBossManager.queue.enqueue(topic, data)
@@ -68,13 +78,12 @@ export class JobService {
         data: T,
         tx: SqlExecutor,
     ): Promise<number> {
-        this.logOutgoing(topic, data);
-
         const boss = await pgBossManager.waitUntilReady();
 
         return pgBossManager.queue.enqueueTx(topic, data, tx)
     }
 
+<<<<<<< HEAD
     private logOutgoing(topic: string, data: unknown): void {
         if (!this.messageLogger) {
             return;
@@ -96,12 +105,27 @@ export class JobService {
     }
 
 
+=======
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
     async stop() {
         return await pgBossManager.stop();
     }
 
     async check(): Promise<boolean> {
         return pgBossManager.check();
+    }
+
+    private registerWorkers(): void {
+        for (const [topic, handler] of this.workers) {
+            pgBossManager.workers.registerWorker(
+                topic,
+                handler,
+            );
+        }
+
+        logger.info(
+            `✅ Registered ${this.workers.size} workers`,
+        );
     }
 
 }

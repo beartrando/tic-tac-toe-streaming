@@ -3,7 +3,10 @@ import {RawData,} from "ws";
 
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
+<<<<<<< HEAD
 import {extractBattleId, extractTrackId, runInSpan, type MessageLogger} from "@shared/elastic";
+=======
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
 
 import WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 
@@ -32,7 +35,6 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
         private readonly battleTimerService: TimerService<string, BattleId>,
-        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -81,7 +83,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         const profileId = new ProfileId(url.searchParams.get("profileId") ?? "");
 
         try {
-            if (!this.authorizeProfileUseCase.execute(userId, profileId, token)) {
+            if (!await this.authorizeProfileUseCase.execute(userId, profileId, token)) {
                 ws.close();
 
                 logger.error("❌ JWT token does not match to profile");

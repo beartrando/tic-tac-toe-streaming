@@ -1,6 +1,9 @@
 import {createConsumer, createProducer, KafkaConfig, KafkaProducer} from "@shared/kafka-manager";
 import logger from "@shared/logger";
+<<<<<<< HEAD
 import {extractBattleId, extractTrackId, runInSpan, type MessageLogger} from "@shared/elastic";
+=======
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
 import sleep from "../../utils/sleep";
 import MessageConsumerHandlerInterface from "./interfaces/message-consumer-handler.interface";
 import MessageConsumerInterface from "./interfaces/message-consumer.interface";
@@ -12,7 +15,6 @@ export class MessageService {
 
     constructor(
         private readonly config: KafkaConfig,
-        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -61,6 +63,7 @@ export class MessageService {
                     ...this.config,
                     groupId: `${this.config.groupId}-${consumer.topic}`,
                 },
+<<<<<<< HEAD
                 {
                     topic: consumer.topic,
                     handler: async (topic, partition, message) => {
@@ -77,6 +80,9 @@ export class MessageService {
                         );
                     },
                 },
+=======
+                consumer,
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
             );
         }
     }

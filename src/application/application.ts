@@ -1,5 +1,9 @@
 import logger from "@shared/logger";
+<<<<<<< HEAD
 import {messageIndexTemplate, type ElasticService} from "@shared/elastic";
+=======
+import type {ElasticService} from "@shared/persistent-logger";
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";

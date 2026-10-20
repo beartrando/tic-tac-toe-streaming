@@ -1,4 +1,4 @@
-import type {ElasticConfig} from '@shared/elastic';
+import type {ElasticConfig} from '@shared/persistent-logger';
 
 export const elasticConfig: ElasticConfig = {
     node: process.env.ELASTICSEARCH_URL ?? 'http://elasticsearch:9200',

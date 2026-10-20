@@ -55,9 +55,16 @@ import websocketServerConfig from "../infrastructure/websocket/configs/websocket
 import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
 import timerConfig from "../infrastructure/timer/config/config";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
+<<<<<<< HEAD
 import {ElasticService, MessageLogger, SpanRegistry} from "@shared/elastic";
 import elasticConfig from "../infrastructure/elastic/elastic.config";
 import messagesConfig from "../infrastructure/elastic/messages.config";
+=======
+import {ElasticService, MessageLogger} from "@shared/persistent-logger";
+import elasticConfig from "../infrastructure/persistent-logger/elastic.config";
+import persistentLoggerMessagesConfig from "../infrastructure/persistent-logger/persistent-logger-messages.config";
+import {BATTLE_WS_ROUTE} from "../infrastructure/websocket/websocket.constants";
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
 
 
 function buildApplication(): Application {
@@ -68,7 +75,7 @@ function buildApplication(): Application {
     // Elasticsearch: транспортные сообщения (in/out)
     const elasticService = new ElasticService(elasticConfig);
 
-    const messageLogger = new MessageLogger(elasticService, messagesConfig);
+    const messageLogger = new MessageLogger(elasticService, persistentLoggerMessagesConfig);
 
     const spanRegistry = new SpanRegistry();
 
@@ -78,10 +85,9 @@ function buildApplication(): Application {
         jobConfig,
         messageConfig,
         messageProducersConfig,
-        messageLogger,
     );
 
-    const messageService = new MessageService(messageConfig, messageLogger);
+    const messageService = new MessageService(messageConfig);
 
     const timerCallbackFactoryHolder =
         new TimerCallbackFactoryHolder<WebSocket>();
@@ -139,7 +145,7 @@ function buildApplication(): Application {
 
     const battleWebsocketsRegistry = new BattleWebsocketsRegistry(socketContextStore, battleWebsocketsStore);
 
-    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry, battleTimerService, messageLogger);
+    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry, battleTimerService);
 
 
     /*
@@ -230,6 +236,7 @@ function buildApplication(): Application {
             battleMoveUseCase,
             battleConnectBotUseCase,
             battleLeaveUseCase,
+            messageLogger,
         );
 
 
@@ -240,11 +247,10 @@ function buildApplication(): Application {
             websocketDisconnectUseCase,
             battleWebsocketsRegistry,
             battleTimerService,
-            messageLogger,
         );
 
     connectionHandler.registerHandler(
-        "/battle",
+        BATTLE_WS_ROUTE,
         battleHandler,
     );
 

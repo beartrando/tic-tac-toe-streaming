@@ -1,10 +1,14 @@
 import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
+<<<<<<< HEAD
 import {extractBattleId, extractTrackId, runInSpan, type MessageLogger, type SpanRegistry} from "@shared/elastic";
+=======
+import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
 import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
-import {ENGINE_BATTLE_CHANNEL_PATH} from "../../grpc/grpc.constants";
+import {ENGINE_BATTLE_CHANNEL_PATH} from "../../persistent-logger/stream-constants";
 
 
 export class EngineStream implements StreamInterface<engineProto.BattleRequest> {
@@ -87,9 +91,17 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                 logger.log(message);
 
                 if (message.battle) {
+<<<<<<< HEAD
                     const battle = message.battle;
                     const trackId = extractTrackId(message);
                     const battleId = extractBattleId(message);
+=======
+                    void this.messageLogger?.logIn(
+                        ENGINE_BATTLE_CHANNEL_PATH,
+                        message.battle,
+                        extractTrackId(message),
+                    );
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
 
                     void runInSpan(
                         {battleId, trackId},
@@ -158,9 +170,13 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
         }
 
         if (!data.ping) {
+<<<<<<< HEAD
             const trackId = extractTrackId(data);
             const spanId = this.messageLogger?.logOut(
                 'grpc',
+=======
+            void this.messageLogger?.logOut(
+>>>>>>> 65a7841a75ca74b18f25620acc682f5bae881b82
                 ENGINE_BATTLE_CHANNEL_PATH,
                 data,
                 {
