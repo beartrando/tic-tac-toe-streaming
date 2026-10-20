@@ -4,6 +4,7 @@ import WebsocketSenderInterface from "../interfaces/websocket-sender.interface";
 import SocketEncoding from "../enums/socket-encoding";
 
 export class WebsocketSender implements WebsocketSenderInterface {
+
     writeStream(
         ws: WebSocket,
         streamResponse: streamingProto.BattleResponse,
