@@ -1,5 +1,5 @@
 import logger from "@shared/logger";
-import type {ElasticService} from "@shared/elastic";
+import {messageIndexTemplate, type ElasticService} from "@shared/elastic";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
@@ -8,6 +8,7 @@ import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import {TimerService} from "@shared/timer";
 import * as engineProto from "../contracts/proto/engine";
 import {WebSocket,} from "ws";
+import messagesConfig from "../infrastructure/elastic/messages.config";
 
 export class Application {
     constructor(
@@ -44,6 +45,10 @@ export class Application {
                     '⚠️ Elasticsearch is unavailable, messages will not be indexed',
                 );
             }
+
+            await this.elasticService.ensureIndexTemplates([
+                messageIndexTemplate(messagesConfig.index),
+            ]);
 
             logger.info(
                 '🚀 Streaming service started',

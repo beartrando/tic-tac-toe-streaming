@@ -1,6 +1,6 @@
 import {createConsumer, createProducer, KafkaConfig, KafkaProducer} from "@shared/kafka-manager";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/elastic";
+import {extractBattleId, extractTrackId, runInSpan, type MessageLogger} from "@shared/elastic";
 import sleep from "../../utils/sleep";
 import MessageConsumerHandlerInterface from "./interfaces/message-consumer-handler.interface";
 import MessageConsumerInterface from "./interfaces/message-consumer.interface";
@@ -64,14 +64,17 @@ export class MessageService {
                 {
                     topic: consumer.topic,
                     handler: async (topic, partition, message) => {
-                        void this.messageLogger?.logIn(
-                            'kafka',
-                            topic,
-                            message,
-                            extractTrackId(message),
-                        );
+                        await runInSpan(
+                            {
+                                battleId: extractBattleId(message),
+                                trackId: extractTrackId(message),
+                            },
+                            async () => {
+                                this.messageLogger?.logIn('kafka', topic, message);
 
-                        await consumer.handler(topic, partition, message);
+                                await consumer.handler(topic, partition, message);
+                            },
+                        );
                     },
                 },
             );

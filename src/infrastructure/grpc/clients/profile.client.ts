@@ -27,11 +27,11 @@ export class ProfileClient {
         request: authProto.UserIdRequest,
         metadata: grpc.Metadata,
     ): Promise<profileProto.ProfileResponse | null> {
-        void this.messageLogger?.logOut(
+        const spanId = this.messageLogger?.logOut(
             'grpc',
             PROFILE_GET_BY_USER_PATH,
             request,
-            extractTrackId(request),
+            {trackId: extractTrackId(request)},
         );
 
         try {
@@ -39,14 +39,15 @@ export class ProfileClient {
                 (client, callback) => client.getByUser(request, metadata, callback),
             );
 
-            void this.messageLogger?.logIn('grpc', PROFILE_GET_BY_USER_PATH, response, extractTrackId(response));
+            this.messageLogger?.logIn('grpc', PROFILE_GET_BY_USER_PATH, response, {spanId});
 
             return response;
         } catch (err) {
-            void this.messageLogger?.logIn(
+            this.messageLogger?.logIn(
                 'grpc',
                 PROFILE_GET_BY_USER_PATH,
                 {error: (err as Error)?.message ?? String(err)},
+                {spanId},
             );
 
             throw err;

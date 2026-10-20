@@ -1,7 +1,7 @@
 import type {PgBossConfig} from "@shared/pg-boss-manager";
 import pgBossManager, {SqlExecutor} from '@shared/pg-boss-manager';
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/elastic";
+import {extractBattleId, extractTrackId, type MessageLogger} from "@shared/elastic";
 import sleep from "../../utils/sleep";
 import {KafkaConfig} from "@shared/kafka-manager";
 
@@ -88,7 +88,10 @@ export class JobService {
             'kafka',
             topic,
             data,
-            extractTrackId(data),
+            {
+                battleId: extractBattleId(data),
+                trackId: extractTrackId(data),
+            },
         );
     }
 

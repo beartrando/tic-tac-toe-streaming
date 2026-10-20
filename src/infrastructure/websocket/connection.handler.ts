@@ -3,7 +3,7 @@ import {RawData,} from "ws";
 
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/elastic";
+import {extractBattleId, extractTrackId, runInSpan, type MessageLogger} from "@shared/elastic";
 
 import WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 
@@ -115,13 +115,6 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
             try {
                 const request = this.decodeMessage(data, encoding);
 
-                void this.messageLogger?.logIn(
-                    'websocket',
-                    url.pathname,
-                    request,
-                    extractTrackId(request),
-                );
-
                 const context = this.battleWebsocketsRegistry.getSocketContext(ws);
 
                 if (context) {
@@ -131,12 +124,26 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
                     }
                 }
 
-                void handler.handle(
-                    ws,
-                    token,
-                    profileId,
-                    request,
-                    encoding,
+                void runInSpan(
+                    {
+                        battleId: extractBattleId(request),
+                        trackId: extractTrackId(request),
+                    },
+                    async () => {
+                        this.messageLogger?.logIn(
+                            'websocket',
+                            url.pathname,
+                            request,
+                        );
+
+                        await handler.handle(
+                            ws,
+                            token,
+                            profileId,
+                            request,
+                            encoding,
+                        );
+                    },
                 );
             } catch (err) {
                 logger.error({err}, "WebSocket message handling failed",);

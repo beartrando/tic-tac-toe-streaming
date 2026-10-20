@@ -55,7 +55,7 @@ import websocketServerConfig from "../infrastructure/websocket/configs/websocket
 import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
 import timerConfig from "../infrastructure/timer/config/config";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
-import {ElasticService, MessageLogger} from "@shared/elastic";
+import {ElasticService, MessageLogger, SpanRegistry} from "@shared/elastic";
 import elasticConfig from "../infrastructure/elastic/elastic.config";
 import messagesConfig from "../infrastructure/elastic/messages.config";
 
@@ -69,6 +69,8 @@ function buildApplication(): Application {
     const elasticService = new ElasticService(elasticConfig);
 
     const messageLogger = new MessageLogger(elasticService, messagesConfig);
+
+    const spanRegistry = new SpanRegistry();
 
     const authService = new AuthService(authConfig);
 
@@ -264,6 +266,7 @@ function buildApplication(): Application {
             grpcConfig.serviceEngineUrl,
             battleUpdatedUseCase,
             messageLogger,
+            spanRegistry,
         );
 
     grpcStreamService.stream = engineStream;

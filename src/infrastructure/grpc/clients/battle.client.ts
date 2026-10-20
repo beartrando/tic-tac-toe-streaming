@@ -23,26 +23,27 @@ export class BattleClient {
         request: battleProto.BattleIdsRequest,
         metadata: grpc.Metadata,
     ): Promise<battleProto.BattlesResponse | null> {
-        void this.messageLogger?.logOut(
+        const spanId = this.messageLogger?.logOut(
             'grpc',
             BATTLE_GET_MANY_PATH,
             request,
-            extractTrackId(request),
+            {trackId: extractTrackId(request)},
         );
 
         return this.manager.call<battleProto.BattlesResponse>(
             (client, cb) => client.getMany(request, metadata, cb)
         ).then((response) => {
-            void this.messageLogger?.logIn('grpc', BATTLE_GET_MANY_PATH, response, extractTrackId(response));
+            this.messageLogger?.logIn('grpc', BATTLE_GET_MANY_PATH, response, {spanId});
 
             return response;
         }).catch((err) => {
             logger.error("Get many battles failed:", err);
 
-            void this.messageLogger?.logIn(
+            this.messageLogger?.logIn(
                 'grpc',
                 BATTLE_GET_MANY_PATH,
                 {error: (err as Error)?.message ?? String(err)},
+                {spanId},
             );
 
             return null;

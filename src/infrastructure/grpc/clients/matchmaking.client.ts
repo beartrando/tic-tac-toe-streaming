@@ -5,7 +5,7 @@ import * as battleProto from "../../../contracts/proto/battle";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/elastic";
+import {extractBattleId, extractTrackId, type MessageLogger} from "@shared/elastic";
 import {MATCHMAKING_INIT_PATH} from "../grpc.constants";
 
 export class MatchmakingClient {
@@ -24,26 +24,30 @@ export class MatchmakingClient {
         request: matchmakingProto.BattleInitRequest,
         metadata: grpc.Metadata,
     ): Promise<battleProto.BattleResponse | null> {
-        void this.messageLogger?.logOut(
+        const spanId = this.messageLogger?.logOut(
             'grpc',
             MATCHMAKING_INIT_PATH,
             request,
-            extractTrackId(request),
+            {
+                trackId: extractTrackId(request),
+                battleId: extractBattleId(request),
+            },
         );
 
         return this.manager.call<battleProto.BattleResponse>(
             (client, cb) => client.init(request, metadata, cb)
         ).then((response) => {
-            void this.messageLogger?.logIn('grpc', MATCHMAKING_INIT_PATH, response, extractTrackId(response));
+            this.messageLogger?.logIn('grpc', MATCHMAKING_INIT_PATH, response, {spanId});
 
             return response;
         }).catch((err) => {
             logger.error("Matchmaking init failed:", err);
 
-            void this.messageLogger?.logIn(
+            this.messageLogger?.logIn(
                 'grpc',
                 MATCHMAKING_INIT_PATH,
                 {error: (err as Error)?.message ?? String(err)},
+                {spanId},
             );
 
             return null;

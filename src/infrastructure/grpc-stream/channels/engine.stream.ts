@@ -1,7 +1,7 @@
 import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/elastic";
+import {extractBattleId, extractTrackId, runInSpan, type MessageLogger, type SpanRegistry} from "@shared/elastic";
 import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
 import {ENGINE_BATTLE_CHANNEL_PATH} from "../../grpc/grpc.constants";
@@ -20,6 +20,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
         private readonly serviceEngineUrl: string,
         private readonly battleUpdatedUseCase: BattleUpdatedUseCase,
         private readonly messageLogger?: MessageLogger,
+        private readonly spanRegistry?: SpanRegistry,
     ) {
     }
 
@@ -86,14 +87,27 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                 logger.log(message);
 
                 if (message.battle) {
-                    void this.messageLogger?.logIn(
-                        'grpc',
-                        ENGINE_BATTLE_CHANNEL_PATH,
-                        message,
-                        extractTrackId(message),
-                    );
+                    const battle = message.battle;
+                    const trackId = extractTrackId(message);
+                    const battleId = extractBattleId(message);
 
-                    this.battleUpdatedUseCase.execute(message.battle, message.trackId);
+                    void runInSpan(
+                        {battleId, trackId},
+                        () => {
+                            this.messageLogger?.logIn(
+                                'grpc',
+                                ENGINE_BATTLE_CHANNEL_PATH,
+                                message,
+                                {
+                                    spanId: this.spanRegistry?.take(trackId),
+                                    battleId,
+                                    trackId,
+                                },
+                            );
+
+                            this.battleUpdatedUseCase.execute(battle, message.trackId);
+                        },
+                    );
                 }
             } catch (e) {
                 logger.log(e);
@@ -144,12 +158,20 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
         }
 
         if (!data.ping) {
-            void this.messageLogger?.logOut(
+            const trackId = extractTrackId(data);
+            const spanId = this.messageLogger?.logOut(
                 'grpc',
                 ENGINE_BATTLE_CHANNEL_PATH,
                 data,
-                extractTrackId(data),
+                {
+                    battleId: extractBattleId(data),
+                    trackId,
+                },
             );
+
+            if (spanId) {
+                this.spanRegistry?.remember(trackId, spanId);
+            }
         }
 
         this.stream.write(data);
