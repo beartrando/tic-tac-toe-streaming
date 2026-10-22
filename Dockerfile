@@ -49,6 +49,7 @@ RUN pnpm --filter @shared/errors proto:generate
 RUN pnpm --filter @shared/errors build
 RUN pnpm --filter @shared/kafka-manager build
 RUN pnpm --filter @shared/persistent-logger build
+RUN pnpm --filter @shared/otel build
 RUN pnpm --filter @shared/pg-boss-manager build
 
 RUN pnpm --filter streaming prisma:generate

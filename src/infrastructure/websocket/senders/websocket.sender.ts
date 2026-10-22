@@ -1,5 +1,6 @@
 import {WebSocket} from 'ws';
 import * as streamingProto from "../../../contracts/proto/streaming";
+import {injectTraceparent} from "@shared/otel";
 import WebsocketSenderInterface from "../interfaces/websocket-sender.interface";
 import SocketEncoding from "../enums/socket-encoding";
 
@@ -12,6 +13,8 @@ export class WebsocketSender implements WebsocketSenderInterface {
     ): void {
 
         // logger.log(streamResponse);
+        streamResponse.traceparent = injectTraceparent();
+
         const buffer =
             encoding === SocketEncoding.PROTOBUF
                 ? streamingProto.BattleResponse.encode(streamResponse).finish()

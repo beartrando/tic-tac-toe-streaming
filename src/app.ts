@@ -1,3 +1,4 @@
+import '@shared/otel';
 import buildApplication from "./composition/build-application";
 
 
