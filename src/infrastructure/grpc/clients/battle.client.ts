@@ -4,7 +4,7 @@ import * as battleProto from "../../../contracts/proto/battle";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
+import {type MessageLogger} from "@shared/persistent-logger";
 import {BATTLE_GET_MANY_PATH} from "../../persistent-logger/stream-constants";
 
 export class BattleClient {
@@ -26,13 +26,12 @@ export class BattleClient {
         void this.messageLogger?.logOut(
             BATTLE_GET_MANY_PATH,
             request,
-            extractTrackId(request),
         );
 
         return this.manager.call<battleProto.BattlesResponse>(
             (client, cb) => client.getMany(request, metadata, cb)
         ).then((response) => {
-            void this.messageLogger?.logIn(BATTLE_GET_MANY_PATH, response, extractTrackId(response));
+            void this.messageLogger?.logIn(BATTLE_GET_MANY_PATH, response);
 
             return response;
         }).catch((err) => {

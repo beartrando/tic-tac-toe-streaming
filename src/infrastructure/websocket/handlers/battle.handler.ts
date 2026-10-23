@@ -1,5 +1,4 @@
 import {WebSocket,} from "ws";
-import {randomUUID} from "crypto";
 import * as streamingProto from "../../../contracts/proto/streaming";
 import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
@@ -44,13 +43,10 @@ export class BattleHandler implements WebsocketHandlerInterface {
             'ws.battle.request',
             async () => {
                 try {
-                    const trackId = payload.trackId || randomUUID();
-
                     if (payload.init) {
                         this.messageLogger?.logIn(
                             WS_INCOMING_BATTLE_INIT_MESSAGE,
                             payload.init,
-                            trackId,
                         );
                         const battleId = payload.init.battleId ? new BattleId(payload.init.battleId) : undefined;
                         return this.initUseCase.execute(
@@ -58,41 +54,36 @@ export class BattleHandler implements WebsocketHandlerInterface {
                             accessToken,
                             profileId,
                             battleId,
-                            trackId,
                         );
                     } else if (payload.start) {
                         this.messageLogger?.logIn(
                             WS_INCOMING_BATTLE_START_MESSAGE,
                             payload.start,
-                            trackId,
                         );
                         this.timerService.restart(ws, ws);
-                        return this.startUseCase.execute(profileId, payload.start, trackId);
+                        return this.startUseCase.execute(profileId, payload.start);
                     } else if (payload.move) {
                         this.messageLogger?.logIn(
                             WS_INCOMING_BATTLE_MOVE_MESSAGE,
                             payload.move,
-                            trackId,
                         );
                         this.timerService.restart(ws, ws);
-                        return this.moveUseCase.execute(profileId, payload.move, trackId);
+                        return this.moveUseCase.execute(profileId, payload.move);
                     } else if (payload.ping) {
                         return;
                     } else if (payload.connectBot) {
                         this.messageLogger?.logIn(
                             WS_INCOMING_BATTLE_CONNECT_BOT_MESSAGE,
                             payload.connectBot,
-                            trackId,
                         );
-                        return this.connectBotUseCase.execute(profileId, new BattleId(payload.connectBot.battleId), trackId);
+                        return this.connectBotUseCase.execute(profileId, new BattleId(payload.connectBot.battleId));
                     } else if (payload.leave) {
                         this.messageLogger?.logIn(
                             WS_INCOMING_BATTLE_LEAVE_MESSAGE,
                             payload.leave,
-                            trackId,
                         );
                         const battleId = new BattleId(payload.leave.battleId);
-                        return this.leaveUseCase.execute(profileId, battleId, trackId);
+                        return this.leaveUseCase.execute(profileId, battleId);
                     }
 
                     logger.warn(`⚠️ Unknown payload type:`, payload);

@@ -2,7 +2,7 @@ import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
 import {injectTraceparent, runWithTraceparent, SpanKind, withSpan} from "@shared/otel";
-import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
+import {type MessageLogger} from "@shared/persistent-logger";
 import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
 import {ENGINE_BATTLE_CHANNEL_PATH} from "../../persistent-logger/stream-constants";
@@ -89,10 +89,9 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                         void this.messageLogger?.logIn(
                             ENGINE_BATTLE_CHANNEL_PATH,
                             message.battle,
-                            extractTrackId(message),
                         );
 
-                        this.battleUpdatedUseCase.execute(message.battle, message.trackId);
+                        this.battleUpdatedUseCase.execute(message.battle);
                     }
                 } catch (e) {
                     logger.log(e);
@@ -153,7 +152,6 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                     void this.messageLogger?.logOut(
                         ENGINE_BATTLE_CHANNEL_PATH,
                         data,
-                        extractTrackId(data),
                     );
                 }
 

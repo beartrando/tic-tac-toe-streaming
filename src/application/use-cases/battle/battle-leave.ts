@@ -14,10 +14,8 @@ export class BattleLeaveUseCase {
     async execute(
         profileId: ProfileId,
         battleId: BattleId,
-        trackId?: string,
     ): Promise<void> {
         const grpcRequest = engineProto.BattleRequest.create({
-            trackId,
             leave: engineProto.BattleLeave.create({
                 battleId: battleId.value,
                 profileId: profileId.value,

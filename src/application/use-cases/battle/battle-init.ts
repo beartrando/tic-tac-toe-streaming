@@ -22,13 +22,11 @@ export class BattleInitUseCase {
         accessToken: SessionAccessToken,
         profileId: ProfileId,
         battleId?: BattleId,
-        trackId?: string,
     ): Promise<void> {
 
         const grpcRequest = matchmakingProto.BattleInitRequest.create({
             profileId: profileId.value,
             battleId: battleId ? battleId.value : undefined,
-            trackId,
         });
         const metadata = AuthHelper.getMetadata(accessToken);
 
@@ -40,7 +38,7 @@ export class BattleInitUseCase {
 
         this.battleWebsocketsRegistry.subscribeBattle(ws, new BattleId(battleResponse.battle.id));
 
-        this.battleWebsocketSender.send(battleResponse.battle, battleResponse.trackId || trackId);
+        this.battleWebsocketSender.send(battleResponse.battle);
 
     }
 }
