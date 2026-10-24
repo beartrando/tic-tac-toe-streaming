@@ -1,14 +1,8 @@
 import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
-import {
-    createSpan,
-    extractSpanContext,
-    extractTrackId,
-    getCurrentSpan,
-    type MessageLogger,
-    runWithSpan
-} from "@shared/persistent-logger";
+import {injectTraceparent, runWithTraceparent, SpanKind, withSpan} from "@shared/otel";
+import {type MessageLogger} from "@shared/persistent-logger";
 import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
 import {ENGINE_BATTLE_CHANNEL_PATH} from "../../persistent-logger/stream-constants";
@@ -82,10 +76,8 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
 
         this.stream.on('data', (message: engineProto.BattleResponse) => {
-            const span = createSpan(extractSpanContext(message));
-            runWithSpan(span, () => {
+            runWithTraceparent(message.traceparent, () => {
                 try {
-
                     this.reconnectDelay = 1000
 
                     if (message.ping) {
@@ -97,16 +89,14 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                         void this.messageLogger?.logIn(
                             ENGINE_BATTLE_CHANNEL_PATH,
                             message.battle,
-                            extractTrackId(message),
                         );
 
-                        this.battleUpdatedUseCase.execute(message.battle, message.trackId);
+                        this.battleUpdatedUseCase.execute(message.battle);
                     }
                 } catch (e) {
                     logger.log(e);
                 }
             });
-
         });
 
         const handleDisconnect = () => {
@@ -151,21 +141,27 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
             throw new Error('Engine stream not initialized');
         }
 
-        const currentSpan = getCurrentSpan();
-        if (currentSpan) {
-            data.spanId = currentSpan.spanId;
-            data.parentSpanId = currentSpan.parentSpanId ?? '';
-        }
+        const stream = this.stream;
 
-        if (!data.ping) {
-            void this.messageLogger?.logOut(
-                ENGINE_BATTLE_CHANNEL_PATH,
-                data,
-                extractTrackId(data),
-            );
-        }
+        void withSpan(
+            'grpc.engine.send',
+            () => {
+                data.traceparent = injectTraceparent();
 
-        this.stream.write(data);
+                if (!data.ping) {
+                    void this.messageLogger?.logOut(
+                        ENGINE_BATTLE_CHANNEL_PATH,
+                        data,
+                    );
+                }
+
+                stream.write(data);
+            },
+            {
+                kind: SpanKind.PRODUCER,
+                attributes: {'rpc.system': 'grpc', 'rpc.service': 'engine.Engine'},
+            },
+        );
     }
 
     scheduleReconnect = () => {

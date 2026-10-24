@@ -5,7 +5,7 @@ import * as battleProto from "../../../contracts/proto/battle";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
-import {extractTrackId, type MessageLogger} from "@shared/persistent-logger";
+import {type MessageLogger} from "@shared/persistent-logger";
 import {MATCHMAKING_INIT_PATH} from "../../persistent-logger/stream-constants";
 
 export class MatchmakingClient {
@@ -27,13 +27,12 @@ export class MatchmakingClient {
         void this.messageLogger?.logOut(
             MATCHMAKING_INIT_PATH,
             request,
-            extractTrackId(request),
         );
 
         return this.manager.call<battleProto.BattleResponse>(
             (client, cb) => client.init(request, metadata, cb)
         ).then((response) => {
-            void this.messageLogger?.logIn(MATCHMAKING_INIT_PATH, response, extractTrackId(response));
+            void this.messageLogger?.logIn(MATCHMAKING_INIT_PATH, response);
 
             return response;
         }).catch((err) => {
@@ -42,7 +41,6 @@ export class MatchmakingClient {
             void this.messageLogger?.logIn(
                 MATCHMAKING_INIT_PATH,
                 {error: (err as Error)?.message ?? String(err)},
-                extractTrackId(request),
             );
 
             return null;
