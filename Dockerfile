@@ -51,14 +51,7 @@ RUN pnpm --filter @shared/logger build
 RUN pnpm --filter @shared/grpc-client-manager build
 RUN pnpm --filter @shared/errors proto:generate
 RUN pnpm --filter @shared/errors build
-<<<<<<< HEAD
 RUN pnpm --filter @shared/otel build
-=======
-RUN pnpm --filter @shared/kafka-manager build
-RUN pnpm --filter @shared/persistent-logger build
-RUN pnpm --filter @shared/otel build
-RUN pnpm --filter @shared/pg-boss-manager build
->>>>>>> f0afcd6fb443a44b3c15c1c18f3a67dd12679b0c
 
 RUN pnpm --filter streaming prisma:generate
 
