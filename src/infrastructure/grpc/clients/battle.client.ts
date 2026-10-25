@@ -4,37 +4,39 @@ import * as battleProto from "../../../contracts/proto/battle";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
+import {type MessageLogger} from "@shared/persistent-logger";
+import {BATTLE_GET_MANY_PATH} from "../../persistent-logger/stream-constants";
 
 export class BattleClient {
     private readonly manager: GrpcClientManager<battleProto.BattleClient>;
 
     constructor(
         private readonly url: string,
+        private readonly messageLogger?: MessageLogger,
     ) {
         this.manager = new GrpcClientManager(
             () => new battleProto.BattleClient(this.url, grpc.credentials.createInsecure()),
         );
     }
 
-    async init(request: battleProto.BattleInitRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
-        // logger.log(request);
-
-        return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.init(request, metadata, cb)
-        ).catch((err) => {
-            logger.error("Start engine failed:", err);
-            return null;
-        });
-    }
-
     async getMany(
         request: battleProto.BattleIdsRequest,
         metadata: grpc.Metadata,
     ): Promise<battleProto.BattlesResponse | null> {
+        void this.messageLogger?.logOut(
+            BATTLE_GET_MANY_PATH,
+            request,
+        );
+
         return this.manager.call<battleProto.BattlesResponse>(
             (client, cb) => client.getMany(request, metadata, cb)
-        ).catch((err) => {
+        ).then((response) => {
+            void this.messageLogger?.logIn(BATTLE_GET_MANY_PATH, response);
+
+            return response;
+        }).catch((err) => {
             logger.error("Get many battles failed:", err);
+
             return null;
         });
     }

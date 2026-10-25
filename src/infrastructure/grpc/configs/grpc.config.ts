@@ -5,6 +5,7 @@ export const grpcConfig = {
     serviceProfileUrl: process.env.SERVICE_PROFILE_URL ?? 'profile:50051',
     serviceEngineUrl: process.env.SERVICE_ENGINE_URL ?? 'engine:50051',
     serviceBattleUrl: process.env.SERVICE_BATTLE_URL ?? 'battle:50051',
+    serviceMatchmakingUrl: process.env.SERVICE_MATCHMAKING_URL ?? 'matchmaking:50051',
 };
 
 export default grpcConfig;

@@ -3,6 +3,7 @@ import {RawData,} from "ws";
 
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
+import {runWithTraceparent} from "@shared/otel";
 
 import WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 
@@ -79,7 +80,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         const profileId = new ProfileId(url.searchParams.get("profileId") ?? "");
 
         try {
-            if (!this.authorizeProfileUseCase.execute(userId, profileId, token)) {
+            if (!await this.authorizeProfileUseCase.execute(userId, profileId, token)) {
                 ws.close();
 
                 logger.error("❌ JWT token does not match to profile");
@@ -122,12 +123,14 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
                     }
                 }
 
-                void handler.handle(
-                    ws,
-                    token,
-                    profileId,
-                    request,
-                    encoding,
+                void runWithTraceparent(request.traceparent, () =>
+                    handler.handle(
+                        ws,
+                        token,
+                        profileId,
+                        request,
+                        encoding,
+                    ),
                 );
             } catch (err) {
                 logger.error({err}, "WebSocket message handling failed",);

@@ -1,8 +1,11 @@
 import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
+import {injectTraceparent, runWithTraceparent, SpanKind, withSpan} from "@shared/otel";
+import {type MessageLogger} from "@shared/persistent-logger";
 import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
+import {ENGINE_BATTLE_CHANNEL_PATH} from "../../persistent-logger/stream-constants";
 
 
 export class EngineStream implements StreamInterface<engineProto.BattleRequest> {
@@ -17,6 +20,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
     constructor(
         private readonly serviceEngineUrl: string,
         private readonly battleUpdatedUseCase: BattleUpdatedUseCase,
+        private readonly messageLogger?: MessageLogger,
     ) {
     }
 
@@ -72,23 +76,27 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
 
         this.stream.on('data', (message: engineProto.BattleResponse) => {
+            runWithTraceparent(message.traceparent, () => {
+                try {
+                    this.reconnectDelay = 1000
 
-            try {
+                    if (message.ping) {
+                        return;
+                    }
+                    logger.log(message);
 
-                this.reconnectDelay = 1000
+                    if (message.battle) {
+                        void this.messageLogger?.logIn(
+                            ENGINE_BATTLE_CHANNEL_PATH,
+                            message.battle,
+                        );
 
-                if (message.ping) {
-                    return;
+                        this.battleUpdatedUseCase.execute(message.battle);
+                    }
+                } catch (e) {
+                    logger.log(e);
                 }
-                logger.log(message);
-
-                if (message.battle) {
-                    this.battleUpdatedUseCase.execute(message.battle);
-                }
-            } catch (e) {
-                logger.log(e);
-            }
-
+            });
         });
 
         const handleDisconnect = () => {
@@ -133,7 +141,27 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
             throw new Error('Engine stream not initialized');
         }
 
-        this.stream.write(data);
+        const stream = this.stream;
+
+        void withSpan(
+            'grpc.engine.send',
+            () => {
+                data.traceparent = injectTraceparent();
+
+                if (!data.ping) {
+                    void this.messageLogger?.logOut(
+                        ENGINE_BATTLE_CHANNEL_PATH,
+                        data,
+                    );
+                }
+
+                stream.write(data);
+            },
+            {
+                kind: SpanKind.PRODUCER,
+                attributes: {'rpc.system': 'grpc', 'rpc.service': 'engine.Engine'},
+            },
+        );
     }
 
     scheduleReconnect = () => {

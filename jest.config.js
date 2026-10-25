@@ -1,11 +1,12 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    testMatch: ['**/src/**/*.test.ts'],
-    moduleNameMapper: {
-        '^@shared/(.*)$': '<rootDir>/../../shared/$1',
-    },
+    roots: ['<rootDir>/src'],
+    testMatch: ['**/*.spec.ts'],
+    coverageDirectory: 'coverage',
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', {tsconfig: {types: ['jest']}}],
+        '^.+\\.tsx?$': ['ts-jest', {
+            tsconfig: 'tsconfig.test.json',
+        }],
     },
 };
