@@ -14,12 +14,12 @@ COPY package.json ./
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 
-COPY services/streaming/package*.json ./services/streaming/
-COPY services/streaming/jest.config.js ./services/streaming/
-COPY services/streaming/jest.setup.ts ./services/streaming/
-COPY services/streaming/tsconfig.json ./services/streaming/
-COPY services/streaming/jest.setup.ts ./services/streaming/
-COPY services/streaming/src ./services/streaming/src/
+COPY services/server/streaming/package*.json ./services/server/streaming/
+COPY services/server/streaming/jest.config.js ./services/server/streaming/
+COPY services/server/streaming/jest.setup.ts ./services/server/streaming/
+COPY services/server/streaming/tsconfig.json ./services/server/streaming/
+COPY services/server/streaming/jest.setup.ts ./services/server/streaming/
+COPY services/server/streaming/src ./services/server/streaming/src/
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -38,7 +38,7 @@ FROM base AS deps
 RUN pnpm fetch
 RUN pnpm install --offline --frozen-lockfile --ignore-scripts
 
-RUN mkdir -p ./services/streaming/src/contracts/proto
+RUN mkdir -p ./services/server/streaming/src/contracts/proto
 RUN pnpm --filter streaming proto:generate
 
 RUN pnpm --filter @shared/logger build
@@ -58,7 +58,7 @@ RUN pnpm --filter streaming prisma:generate
 # ---------- DEV ----------
 FROM deps AS dev
 
-COPY services/streaming/tsconfig.test.json ./services/streaming/
+COPY services/server/streaming/tsconfig.test.json ./services/server/streaming/
 
 ENV NODE_ENV=development
 
@@ -130,6 +130,6 @@ RUN printf "%s\n" "$VERSION" > VERSION
 
 LABEL org.opencontainers.image.version="$VERSION"
 
-WORKDIR /usr/src/app/services/streaming
+WORKDIR /usr/src/app/services/server/streaming
 
 CMD ["pnpm", "--filter", "streaming", "migrate:deploy"]
