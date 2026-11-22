@@ -5,6 +5,7 @@ export const elasticConfig: ElasticConfig = {
     index: process.env.ELASTIC_INDEX ?? 'service-messages',
     username: process.env.ELASTICSEARCH_USERNAME,
     password: process.env.ELASTICSEARCH_PASSWORD,
+    sniff: false,
     enabled: (process.env.ELASTIC_ENABLED ?? 'true') !== 'false',
 };
 
